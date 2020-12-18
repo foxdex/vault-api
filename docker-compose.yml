@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  foxdex:
+    image: lend-data/node:latest
+    container_name: lend-data
+    restart: always
+    ports:
+      - "9802:9802"
+    privileged: true
