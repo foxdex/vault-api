@@ -6,9 +6,9 @@ npm test
 
 yarn build:prod
 
-docker build -t  lend-data/node:latest .
+docker build -t  lend/node:latest .
 
-docker login --username foxdex -p $DOCKER_ACCESS_TOKEN
+docker login --username lend -p $DOCKER_ACCESS_TOKEN
 
 
-docker push lend-data/node:latest
+docker push lend/node:latest

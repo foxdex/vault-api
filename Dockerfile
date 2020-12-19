@@ -6,9 +6,6 @@ RUN pwd
 RUN ls
 RUN npm install
 
-
-
-EXPOSE 9801
-
+EXPOSE 9701
 
 CMD [ "node", "main.js" ]

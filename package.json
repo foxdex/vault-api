@@ -1,5 +1,5 @@
 {
-  "name": "lend-data",
+  "name": "lenddata",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
@@ -26,16 +26,16 @@
   "bin": "main.js",
   "pkg": {
     "scripts": [
-      "src/api/account/*.js",
-      "src/api/transaction/*.js",
-      "src/blockchain/*.js",
-      "src/blockchain/mysql-synchronous/*.js",
-      "src/config/*.js",
-      "src/node_modules/**/*.js",
-      "src/routes/*.js"
+      "api/account/*.js",
+      "api/transaction/*.js",
+      "blockchain/*.js",
+      "blockchain/mysql-synchronous/*.js",
+      "config/*.js",
+      "node_modules/**/*.js",
+      "routes/*.js"
     ],
     "assets": [
-      "src/node_modules/‘’**/*"
+      "node_modules/‘’**/*"
     ]
   }
 }

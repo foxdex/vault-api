@@ -1,13 +1,13 @@
 {
   "apps": [
     {
-      "name": "lend-data",
-      "cwd": "/var/nodejs/lend-data",
+      "name": "foxdata",
+      "cwd": "/var/nodejs/foxdata",
       "script": "main.js",
       "log_date_format": "YYYY-MM-DD HH:mm Z",
-      "error_file": "/var/nodejs/log/lend-data_erroe.log",
-      "out_file": "log/lend-data.log",
-      "pid_file": "pids/lend-data.pid",
+      "error_file": "/var/nodejs/log/foxdata_erroe.log",
+      "out_file": "log/foxdata.log",
+      "pid_file": "pids/foxdata.pid",
       "instances": 1,
       "min_uptime": "200s",
       "max_restarts": 10,
