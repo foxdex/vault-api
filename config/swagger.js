@@ -29,7 +29,7 @@ exports.swaggerConfig = function swaggerConfig(app,lenddata_url,lenddata_port){
         res.setHeader('Content-Type', 'application/json');
         res.send(swaggerSpec);
     });
-    app.use('/lend-api', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
     console.log("Swagger running at "+lenddata_url+":"+lenddata_port+"/lend-api");
 }
