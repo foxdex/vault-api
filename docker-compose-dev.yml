@@ -6,7 +6,7 @@ services:
     container_name: lend
     restart: always
     ports:
-      - "9701:9701"
+      - "8081:9701"
     privileged: true
 
   web:
