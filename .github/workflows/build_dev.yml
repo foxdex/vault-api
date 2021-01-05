@@ -32,4 +32,4 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - run: |
         chmod +x sh/build_dev.sh
-        ./sh/build_dev.sh
+        sh sh/build_dev.sh
