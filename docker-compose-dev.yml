@@ -1,10 +1,23 @@
 version: '3'
 
 services:
-  foxdex:
-    image: lend/node:latest
+  lend:
+    image: coinflow/lend-api:dev
     container_name: lend
     restart: always
     ports:
-      - "9701:9701"
+      - "8081:9701"
     privileged: true
+
+  web:
+    image: coinflow/lend-web:dev
+    container_name: web
+    restart: always
+    ports:
+      - "8080:80"
+    privileged: true
+
+
+networks:
+  ableo_default:
+    driver: bridge

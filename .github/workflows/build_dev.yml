@@ -30,4 +30,6 @@ jobs:
             node_modules
             */*/node_modules
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-      - run: ./sh/build_dev.sh
+      - run: |
+          chmod +x sh/build_dev.sh
+          sh sh/build_dev.sh
