@@ -1,5 +1,5 @@
 /*Database connection encapsulation*/
-const config = require("../../config/mysql.json");
+const config = require("../../config/mysql/localhost.json");
 const mysql = require("mysql");
 
 // SELECT ALL
