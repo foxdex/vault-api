@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-const token = require('./../../api/token/token-info');
+const token = require('../../api/getTokenList');
 
 
 /**

@@ -9,7 +9,6 @@ var lenddata_port = "9701";
 // Arouse the express
 const express = require("express");
 const app = express();
-
 // Arouse the swagger
 const swagger = require("./config/swagger");
 swagger.swaggerConfig(app,lenddata_url,lenddata_port);
@@ -19,7 +18,7 @@ const service = require("./config/service");
 service.serviceConfig(app,lenddata_url,lenddata_port);
 
 // Arouse rest api
-const restApi = require("./config/restApi");
+const restApi = require("./router/index");
 restApi.restApiConfig(app);
 
 // Arouse the task

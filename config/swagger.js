@@ -2,7 +2,7 @@
 exports.swaggerConfig = function swaggerConfig(app,lenddata_url,lenddata_port){
     var swaggerUi = require('swagger-ui-express');
     var swaggerJSDoc = require('swagger-jsdoc');
-
+    var path = require('path') 
     var swaggerDefinition = {
         info: {
             title: 'Lend Data Swagger API',
@@ -18,7 +18,7 @@ exports.swaggerConfig = function swaggerConfig(app,lenddata_url,lenddata_port){
         // import swaggerDefinitions
         swaggerDefinition: swaggerDefinition,
         // path to the API docs
-        apis: ['./routes/*/*.js'],
+        apis: ['./router/swagger/*/*.js'],
     };
 
     // initialize swagger-jsdoc

@@ -4,26 +4,28 @@ const mysql = require("mysql");
 
 // SELECT ALL
 exports.selectAll = function selectAll(sqlAll){
-    const conn = mysql.createConnection(config);
-    conn.connect();
 
-    conn.query(sqlAll,function (err, result) {
+    return new Promise(function (resolve, reject) {
+      const conn = mysql.createConnection(config);
+      conn.connect();
+      conn.query(sqlAll,function (err, result) {
         if(err){
             console.log('[SELECT ERROR] - ',err.message);
+            reject(err)
             return;
         }
-        // console.log('--------------------------SELECT ALL----------------------------');
-        // console.log(result);
-        // console.log('------------------------------------------------------------\n\n');
+        conn.end();
+        resolve(result)
     });
+    })
 
 
 }
 
 // SELECT
 exports.select = function select(selSql,selSqlParams){
-    const conn = mysql.createConnection(config);
-    conn.connect();
+  const conn = mysql.createConnection(config);
+  conn.connect();
 
     return new Promise(function (resolve, reject) {
 
@@ -32,7 +34,7 @@ exports.select = function select(selSql,selSqlParams){
                 console.log('[SELECT ERROR] - ', err.message);
                 return;
             }
-            console.log('--------------------------SELECT('+selSql+' --- '+selSqlParams+')----------------------------');
+            // console.log('--------------------------SELECT('+selSql+' --- '+selSqlParams+')----------------------------');
 
             let dataString = JSON.stringify(result);
             let data = JSON.parse(dataString);
@@ -57,9 +59,9 @@ exports.insert = function insert(addSql,addSqlParams) {
             console.log('[INSERT ERROR] - ', err.message);
             return;
         }
-        // console.log('--------------------------INSERT----------------------------');
-        // console.log('INSERT ID:', result);
-        // console.log('-----------------------------------------------------------------\n\n');
+        console.log('--------------------------INSERT----------------------------');
+        console.log('INSERT ID:', result);
+        console.log('-----------------------------------------------------------------\n\n');
     });
 
     conn.end();
