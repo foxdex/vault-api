@@ -7,6 +7,7 @@ on: workflow_dispatch
 
 env:
   DOCKER_ACCESS_TOKEN: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+  DOCKER_ACCESS_NAME: ${{ secrets.DOCKER_ACCESS_NAME }}
 
 jobs:
   build:
@@ -30,4 +31,6 @@ jobs:
             node_modules
             */*/node_modules
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-      - run: ./sh/build.sh
+      - run: |
+          chmod +x sh/build.sh
+          ./sh/build.sh
