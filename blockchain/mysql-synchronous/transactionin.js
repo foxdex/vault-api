@@ -1,21 +1,19 @@
 /*Chain transactions - Data synchronization*/
-const request = require("request");
-const connection = require("./connection");
+const connection = require("../../config/connection");
 const $http = require('../../api/http/config')
 // Synchronize all transaction info information of this block
-exports.getTransactionInfoByBlockTimestamp = async function getTransactionInfoByBlockTimestamp(config){
+exports.getTransactionInfoByBlockTimestamp = async function getTransactionInfoByBlockTimestamp(config,ctoken){
   console.log('getTransactionInfoByBlockTimestamp');
-    config = {
-    api_url:'https://api.shasta.trongrid.io',
-    contract_address:'TWenbBceEyffcNGatuCw5JBnNpsNzio2ET'
-   }
+  //   config = {
+  //   api_url:'https://api.shasta.trongrid.io',
+  //   contract_address:'TWenbBceEyffcNGatuCw5JBnNpsNzio2ET'
+  //  }
    try {
-    let data = await $http.get(config.api_url+"/event/contract/"+config.contract_address);
+    let data = await $http.get(config.api_url+"/event/contract/"+ctoken.ctokenAddress);
     let hashList= data.map(el => {
          return el.transaction_id
     });
-     let data1 = await $http.post('https://api.shasta.tronscan.org/api/contracts/smart-contract-triggers-batch',JSON.stringify({hashList:hashList}));
-     console.log(data1);
+     let data1 = await $http.post(config.trig_url+'/api/contracts/smart-contract-triggers-batch',JSON.stringify({hashList:hashList}));
      contractTradeSynchronizationRecord(data1)
    } catch (error) {
       console.log('getTransactionInfoByBlockTimestamp==err='+error)
@@ -25,15 +23,15 @@ exports.getTransactionInfoByBlockTimestamp = async function getTransactionInfoBy
 
 
 // Insert Contract Trade Synchronization Record
- async function contractTradeSynchronizationRecord(json){
+ async function contractTradeSynchronizationRecord(json,ctoken){
    console.log('contractTradeSynchronizationRecord');
         let json1 = json.list;
         let selSql = 'SELECT hash FROM event_trigger'
         let data = await connection.select(selSql);
       for (let i = 0; i<json1.length;i++) {
-      let { date_created, hash, method,owner_address,parameter} = json1[i];
-      let addSql = "INSERT INTO event_trigger(date_created,hash,method,owber_address,parameter)  VALUES(?,?,?,?,?)";
-      let sqlData = [ date_created ,hash, method, owner_address, parameter];
+      let { date_created, hash, method,owner_address,parameter,contract_address} = json1[i];
+      let addSql = "INSERT INTO event_trigger(date_created,hash,method,owber_address,parameter,ctoken_address)  VALUES(?,?,?,?,?,?)";
+      let sqlData = [ date_created ,hash, method, owner_address, parameter ,contract_address];
       if (data.length == 0) {
         connection.insert(addSql,sqlData);
       } else {
@@ -53,6 +51,8 @@ exports.getTransactionInfoByBlockTimestamp = async function getTransactionInfoBy
       }
     console.log('插入完成')
 }
+
+
 // Get current time
 Date.prototype.Format = function(fmt) {
     var o = {
@@ -73,7 +73,22 @@ Date.prototype.Format = function(fmt) {
 
 exports.getContractInfoConfig = async function getContractInfoConfig() {
   
-  let selSql = "SELECT *  FROM contract_info"
+  // let selSql = "SELECT *  FROM contract_info"
+  let selSql = "SELECT *  FROM dictionary_value"
+  try {
+  return await connection.selectAll(selSql);
+
+  } catch (error) {
+      console.log(error);
+  }
+}
+
+
+
+exports.getTokenInfo = async function getTokenInfo() {
+  
+  // let selSql = "SELECT *  FROM contract_info"
+  let selSql = "SELECT *  FROM token_info"
   try {
   return await connection.selectAll(selSql);
 

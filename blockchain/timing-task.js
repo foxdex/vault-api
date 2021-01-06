@@ -15,8 +15,20 @@ async function taskSynchronizationContractEventRecord() {
     const transactionin = require("./mysql-synchronous/transactionin");
     try {
       let config =  await transactionin.getContractInfoConfig()
-        
-      await transactionin.getTransactionInfoByBlockTimestamp(config[0]);
+      let token  =  await transactionin.getTokenInfo()
+      let apiData = {}
+        config.forEach(el => {
+              if (el.key_id == 'tron_api_url') {
+                apiData.api_url = el.key_value
+              } else if (el.key_id == 'trig_api_url') {
+                apiData.trig_url = el.key_value
+              } else if (el.key_id == 'current_environment') {
+                  apiData.environment = el.key_value
+              }
+        });
+      for (let i = 0 ;i< token.length;i++) {
+      await transactionin.getTransactionInfoByBlockTimestamp(apiData,token[i]);
+      }
     } catch (error) {
         console.log('taskSynchronizationContractEventRecord===='+error);
     }
