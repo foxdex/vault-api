@@ -1,10 +1,8 @@
 #!/bin/bash
 
-npm install
+
 npm ci
 npm test
-
-yarn build:prod
 
 docker build -t  coinflow/lend-api:latest .
 
