@@ -19,5 +19,5 @@ services:
 
 
 networks:
-  ableo_default:
+  lend_default:
     driver: bridge
