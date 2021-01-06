@@ -3,7 +3,6 @@ var config
 
 if (process.env.NODE_ENV == 'production') {
   config = require("../config/test/pro-mysql");
-
 } else {
   config = require("../config/test/test-mysql");
 
