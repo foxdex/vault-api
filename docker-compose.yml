@@ -1,7 +1,9 @@
 version: '3'
 
 services:
-  foxdex:
+  lend:
+    environment:
+      - NODE_ENV='production'
     image: coinflow/lend-api:latest
     container_name: lend
     restart: always
