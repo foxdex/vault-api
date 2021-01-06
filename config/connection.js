@@ -1,6 +1,6 @@
 /*Database connection encapsulation*/
 var config 
-
+    console.log(process.env.NODE_ENV)
 if (process.env.NODE_ENV == 'production') {
   config = require("../config/test/pro-mysql");
 
