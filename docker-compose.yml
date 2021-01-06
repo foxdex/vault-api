@@ -2,7 +2,7 @@ version: '3'
 
 services:
   foxdex:
-    image: lend/node:latest
+    image: coinflow/lend-api:latest
     container_name: lend
     restart: always
     ports:
@@ -10,7 +10,7 @@ services:
     privileged: true
 
   web:
-    image: coinflow/lend-web:dev
+    image: coinflow/lend-web:latest
     container_name: web
     restart: always
     ports:
