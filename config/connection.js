@@ -1,10 +1,12 @@
 /*Database connection encapsulation*/
 var config 
 
-if (process.env.NODE_ENV == 'development') {
-   config == require("../config/test/test-mysql");
+if (process.env.NODE_ENV == 'production') {
+  config = require("../config/test/pro-mysql");
+
 } else {
-  config == require("../config/test/pro-mysql");
+  config = require("../config/test/test-mysql");
+
 }
 const mysql = require("mysql");
 
