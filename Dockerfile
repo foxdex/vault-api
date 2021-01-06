@@ -8,4 +8,4 @@ RUN npm install
 
 EXPOSE 9701
 
-CMD [ "node", 'main.js' ]
+CMD [ "node", "main.js" ]
