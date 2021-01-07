@@ -43,8 +43,9 @@ exports.select = function select(selSql, selSqlParams) {
                 console.log('[SELECT ERROR] - ', err.message);
                 return;
             }
-            // console.log('--------------------------SELECT('+selSql+' --- '+selSqlParams+')----------------------------');
 
+            // console.log('--------------------------SELECT('+selSql+' --- '+selSqlParams+')----------------------------');
+            if(result){
             let dataString = JSON.stringify(result);
             let data = JSON.parse(dataString);
 
@@ -53,7 +54,7 @@ exports.select = function select(selSql, selSqlParams) {
             // console.log('------------------------------------------------------------\n\n');
 
             resolve(data);
-        });
+}        });
         conn.end();
     });
 }
