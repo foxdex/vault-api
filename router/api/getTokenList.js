@@ -9,10 +9,10 @@ const url = require('url');
 // getTokenList
  exports.getTokenList =  router.get("/getTokenList", async (req, res) => {
     // Define the SQL statement
-    const sqlStr = "SELECT name,address,img,balance,decimals,ctokenAddress,current_price,mint_scale,borrow_scale from token_info ORDER BY sort_value DESC,token_id ASC";
+
 
     //更新token_info中，ctoken_address的存款取款规模  mint_scale   borrow_scale
-    const allctoken = "select ctokenAddress from token_info ";
+     const allctoken = "select ctokenAddress from token_info ";
      let ctokenArray = await connection.select(allctoken);
      await updateTokenKind(req,res,ctokenArray);
 
@@ -23,7 +23,10 @@ const url = require('url');
      // }
          //更新代码到此-----------------------------
 
-         try {
+
+//获取tokenList
+     const sqlStr = "SELECT name,address,img,balance,decimals,ctokenAddress,current_price,mint_scale,borrow_scale from token_info ORDER BY sort_value DESC,token_id ASC";
+     try {
      let data =  await connection.selectAll(sqlStr);
      res.send({
           code: 0, data: data
@@ -214,8 +217,6 @@ async function queryTokenScope(req,res,ctoken){
         {res.json({code: 404,
             data: "For failure"})
 }
-        return
-
 
 };
 
