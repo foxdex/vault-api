@@ -13,7 +13,7 @@ const url = require('url');
 
 
 //获取tokenList
-     const sqlStr = "SELECT name,address,img,balance,decimals,ctokenAddress,current_price,mint_scale,borrow_scale from token_info ORDER BY sort_value DESC,token_id ASC";
+     const sqlStr = "SELECT name,address,img,balance,decimals,ctokenAddress,current_price,mint_scale,borrow_scale,cdecimals from token_info ORDER BY sort_value DESC,token_id ASC";
      try {
      let data =  await connection.selectAll(sqlStr);
      res.send({
