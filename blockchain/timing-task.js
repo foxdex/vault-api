@@ -28,17 +28,11 @@ async function taskSynchronizationContractEventRecord() {
         });
       for (let i = 0 ;i< token.length;i++) {
       await transactionin.getTransactionInfoByBlockTimestamp(apiData,token[i]);
+          await transactionin.updateTokenScope(token[i].ctokenAddress)//更新token存借规模
       }
     } catch (error) {
         console.log('taskSynchronizationContractEventRecord===='+error);
     }
-        
-}
-
-
-async function updateTokenScale() {
-    console.log("更新token存款借款规模")
-    const update = require("./updateTokenScale")
 
 
 }
