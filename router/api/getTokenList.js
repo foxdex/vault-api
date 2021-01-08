@@ -58,16 +58,15 @@ exports.MarketSize =  router.get("/marketSize", async (req, res) => {
     // Define the SQL statement
     const totalScaleSql = "select SUM(mint_scale) as mintScale,SUM(borrow_scale) as borrowScale FROM token_info"
     let totalScale = await connection.select(totalScaleSql)
-
+    let {name}  = req.query;
     let totalMint = totalScale[0].mintScale;
     let totalBorrow = totalScale[0].borrowScale;
     let ownerMintScale = 0;
     let ownerBorrowScale = 0;
-    let owner_address = req.param('name');
 
 
-    if(owner_address){
-      let array =  await queryOwnerMintBorrowScope(req,res,owner_address)
+    if(name){
+      let array =  await queryOwnerMintBorrowScope(req,res,name)
         ownerMintScale = array[0];
         ownerBorrowScale = array[1];
     }
