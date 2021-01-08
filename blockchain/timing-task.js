@@ -28,7 +28,7 @@ async function taskSynchronizationContractEventRecord() {
         });
       for (let i = 0 ;i< token.length;i++) {
       await transactionin.getTransactionInfoByBlockTimestamp(apiData,token[i]);
-          await transactionin.updateTokenScope(token[i].ctokenAddress)//更新token存借规模
+          await transactionin.updateTokenScope(token[i].ctokenAddress,token[i].decimals)//更新token存借规模
       }
     } catch (error) {
         console.log('taskSynchronizationContractEventRecord===='+error);

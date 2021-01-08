@@ -107,59 +107,7 @@ exports.getTokenInfo = async function getTokenInfo() {
 
 
 
-
-
-//个人存取规模
-// async function queryOwnerMintBorrowScope(req,res,ownerAddress) {
-//     const sqlSTR1 = "select method,parameter from event_trigger where owber_address = ?";
-//     let data1 = await connection.select(sqlSTR1, [ownerAddress]);
-//
-//     let mintAmount = 0;
-//     let repayBorrowAmount = 0;
-//     let redeemAmount = 0;
-//     let borrowAmount = 0;
-//
-//     if (data1) {
-//         for (let i = 0; i < data1.length; i++) {
-//             if (data1[i].method == "mint(uint256 mintAmount)") {
-//                 let temp = data1[i].parameter;
-//                 let tmp = JSON.parse(temp);
-//                 mintAmount += Number(tmp[0]);
-//                 console.log(mintAmount);
-//             } else if (data1[i].method == "repayBorrow(uint256 repayAmount)") {
-//                 let temp = data1[i].parameter;
-//                 let tmp = JSON.parse(temp);
-//                 repayBorrowAmount += Number(tmp[0]);
-//             } else if (data1[i].method == "redeem(uint256 redeemTokens)") {
-//                 let temp = data1[i].parameter;
-//                 let tmp = JSON.parse(temp);
-//                 redeemAmount += Number(tmp[0]);
-//             } else if (data1[i].method == "borrow(uint256 borrowAmount)") {
-//                 let temp = data1[i].parameter;
-//                 let tmp = JSON.parse(temp);
-//                 borrowAmount += Number(tmp[0]);
-//             }
-//         }
-//     } else {
-//         res.json({
-//             code: 404,
-//             data: "For failure"
-//         })
-//     }
-//     let data ={
-//         "code":0,
-//         "data":{
-//             "mintAmount":mintAmount,
-//             "borrowAmount":borrowAmount
-//         }
-//     }
-//     return data;
-// }
-
-
-
-
-exports.updateTokenScope = async function updateTokenScope(ctoken){
+exports.updateTokenScope = async function updateTokenScope(ctoken,decimals){
     const sqlSTR1 = "select method,parameter from event_trigger where ctoken_address = ?";
     let data1 = await connection.select(sqlSTR1,[ctoken]);
 
@@ -190,6 +138,8 @@ exports.updateTokenScope = async function updateTokenScope(ctoken){
                 borrowAmount += Number(tmp[0]);
             }
         }
+         borrowAmount = borrowAmount / Math.pow(10,decimals);
+         mintAmount = mintAmount / Math.pow(10,decimals);
         const sqlInsert = "update token_info set mint_scale = ?,borrow_scale = ? where ctokenAddress = ?"
         await connection.select(sqlInsert,[mintAmount,borrowAmount,ctoken]);
 

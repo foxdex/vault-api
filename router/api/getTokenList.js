@@ -61,13 +61,27 @@ exports.MarketSize =  router.get("/marketSize", async (req, res) => {
 
     let totalMint = totalScale[0].mintScale;
     let totalBorrow = totalScale[0].borrowScale;
+    let ownerMintScale = 0;
+    let ownerBorrowScale = 0;
+    let owner_address = req.param('name');
+
+
+    if(owner_address){
+      let array =  await queryOwnerMintBorrowScope(req,res,owner_address)
+        ownerMintScale = array[0];
+        ownerBorrowScale = array[1];
+    }
+
+
 
     let data ={
     "code":0,
     "data":{
       "market_deposit":totalMint,
       "market_withdrawals":totalBorrow,
-      "apy":"17",
+        "ownerMintScale":ownerMintScale,
+        "ownerBorrowScale":ownerBorrowScale,
+        "apy":"17",
       "Pledgerate":"400"
     }
   }
@@ -79,4 +93,84 @@ exports.MarketSize =  router.get("/marketSize", async (req, res) => {
 
 
 module.exports = router;
+
+
+
+
+
+
+
+
+
+
+// 个人存取规模
+async function queryOwnerMintBorrowScope(req,res,ownerAddress) {
+
+
+    let ownerMintAmount = 0;
+    let repayBorrowAmount = 0;
+    let redeemAmount = 0;
+    let ownerBorrowAmount = 0;
+
+
+    //查询ctokenInfo
+    const ctokenListSTR = "select contract_address from contract_info"
+    let ctokenList = await connection.select(ctokenListSTR);
+
+    for (let j = 0; j < ctokenList.length; j++) {
+
+
+        const sqlSTR1 = "select method,parameter from event_trigger where owber_address = ? and ctoken_address = ?";
+        let data1 = await connection.select(sqlSTR1, [ownerAddress, ctokenList[j].contract_address]);
+
+        const decimalSTR = "select decimals from token_info where ctokenAddress = ?"
+        let decimalArray = await connection.select(decimalSTR, [ctokenList[j].contract_address])
+
+        if (data1) {
+
+            let ownerMintAmountTemp = 0;
+            let repayBorrowAmountTemp = 0;
+            let redeemAmountTemp = 0;
+            let ownerBorrowAmountTemp = 0;
+
+
+            for (let i = 0; i < data1.length; i++) {
+                if (data1[i].method == "mint(uint256 mintAmount)") {
+                    let temp = data1[i].parameter;
+                    let tmp = JSON.parse(temp);
+                    ownerMintAmountTemp += Number(tmp[0]);
+
+                } else if (data1[i].method == "repayBorrow(uint256 repayAmount)") {
+                    let temp = data1[i].parameter;
+                    let tmp = JSON.parse(temp);
+                    repayBorrowAmountTemp += Number(tmp[0]);
+                } else if (data1[i].method == "redeem(uint256 redeemTokens)") {
+                    let temp = data1[i].parameter;
+                    let tmp = JSON.parse(temp);
+                    redeemAmountTemp += Number(tmp[0]);
+                } else if (data1[i].method == "borrow(uint256 borrowAmount)") {
+                    let temp = data1[i].parameter;
+                    let tmp = JSON.parse(temp);
+                    ownerBorrowAmountTemp += Number(tmp[0]);
+                }
+            }
+            ownerMintAmount += ownerMintAmountTemp / Math.pow(10, decimalArray[0].decimals);
+            ownerBorrowAmount += ownerBorrowAmountTemp / Math.pow(10, decimalArray[0].decimals);
+            redeemAmount += redeemAmountTemp / Math.pow(10, decimalArray[0].decimals);
+            repayBorrowAmount += repayBorrowAmountTemp / Math.pow(10, decimalArray[0].decimals);
+        } else {
+            res.json({
+                code: 404,
+                data: "For failure"
+            })
+        }
+
+    }
+
+        let array = new Array(1);
+        array[0] = ownerMintAmount;
+        array[1] = ownerBorrowAmount;
+        return array;
+    }
+
 
