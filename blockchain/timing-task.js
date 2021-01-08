@@ -35,3 +35,11 @@ async function taskSynchronizationContractEventRecord() {
         
 }
 
+
+async function updateTokenScale() {
+    console.log("更新token存款借款规模")
+    const update = require("./updateTokenScale")
+
+
+}
+
