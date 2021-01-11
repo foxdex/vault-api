@@ -315,20 +315,20 @@ SET FOREIGN_KEY_CHECKS = 1;
 /*
  Navicat Premium Data Transfer
 
- Source Server         : localhost_3306
+ Source Server         : box-test
  Source Server Type    : MySQL
- Source Server Version : 80022
- Source Host           : localhost:3306
- Source Schema         : test
+ Source Server Version : 50732
+ Source Host           : 18.166.58.56:3306
+ Source Schema         : box-lend
 
  Target Server Type    : MySQL
- Target Server Version : 80022
+ Target Server Version : 50732
  File Encoding         : 65001
 
- Date: 09/01/2021 18:37:09
+ Date: 11/01/2021 18:03:46
 */
 
-SET NAMES utf8;
+SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
@@ -336,23 +336,32 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `token_info`;
 CREATE TABLE `token_info`  (
-  `token_id` int(0) NOT NULL COMMENT '自增ID，Token-ID',
+  `token_id` int(11) NOT NULL COMMENT '自增ID，Token-ID',
   `name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '币种名称',
   `token_alias` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'Token别名',
   `address` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '代币合约地址',
   `img` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '图片信息',
   `balance` decimal(20, 6) NULL DEFAULT NULL COMMENT '余额',
-  `decimals` int(0) NULL DEFAULT NULL COMMENT '精确度',
+  `decimals` int(11) NULL DEFAULT NULL COMMENT '精确度',
   `ctokenAddress` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '部署借贷合约地址',
   `mint_rate` decimal(20, 6) NULL DEFAULT NULL COMMENT '存款利率',
   `borrow_rate` decimal(20, 6) NULL DEFAULT NULL COMMENT '借款利率',
   `mint_scale` decimal(65, 30) NULL DEFAULT NULL COMMENT '存款规模',
   `borrow_scale` decimal(65, 30) NULL DEFAULT NULL COMMENT '借款规模',
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
-  `sort_value` int(0) NULL DEFAULT 0 COMMENT '排序值',
+  `sort_value` int(11) NULL DEFAULT 0 COMMENT '排序值',
   `current_price` decimal(20, 6) NULL DEFAULT 0.000000 COMMENT '当前价格',
+  `cdecimals` decimal(20, 0) NULL DEFAULT NULL COMMENT 'Ctoken精确度',
+  `abi` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`token_id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of token_info
+-- ----------------------------
+INSERT INTO `token_info` VALUES (1, 'TRX', NULL, '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', NULL, 0.000000, 6, 'TMtK1HFdw3wm9PEivno2btBs5C8EoxtuUV', 0.100000, 0.100000, 100.000000000000000000000000000000, 100.000000000000000000000000000000, NULL, 0, 1.000000, 18, '0');
+INSERT INTO `token_info` VALUES (2, 'USDT', NULL, 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t', NULL, 0.000000, 6, 'TKAcAFDT4xpuTnjtLab41e5cAFcZFcW9Ha', 0.100000, 0.100000, 100.000000000000000000000000000000, 100.000000000000000000000000000000, NULL, 0, 1.000000, 18, '0');
+INSERT INTO `token_info` VALUES (3, 'JUSTSWAP-USDT-TRX', NULL, 'TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE', NULL, 0.000000, 6, 'TYM1GyCB8cg5YC37WgkkBnVXn8qwd5hr9L', 0.100000, 0.100000, 100.000000000000000000000000000000, 100.000000000000000000000000000000, NULL, 0, 1.000000, 18, '1');
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -362,3 +371,39 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 
 
+/*
+ Navicat Premium Data Transfer
+
+ Source Server         : box-test
+ Source Server Type    : MySQL
+ Source Server Version : 50732
+ Source Host           : 18.166.58.56:3306
+ Source Schema         : box-lend
+
+ Target Server Type    : MySQL
+ Target Server Version : 50732
+ File Encoding         : 65001
+
+ Date: 11/01/2021 18:04:08
+*/
+
+SET NAMES utf8;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for user_info
+-- ----------------------------
+DROP TABLE IF EXISTS `user_info`;
+CREATE TABLE `user_info`  (
+  `owber_address` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户地址',
+  `mint_scale` decimal(65, 6) NULL DEFAULT NULL COMMENT '借款规模',
+  `borrow_scale` decimal(65, 6) NULL DEFAULT NULL COMMENT '存款规模',
+  PRIMARY KEY (`owber_address`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of user_info
+-- ----------------------------
+INSERT INTO `user_info` VALUES ('TSZJSaYq4q2oNaVUwgBj5ywCA1QxAMVw5x', 12.000000, 21.000000);
+
+SET FOREIGN_KEY_CHECKS = 1;
