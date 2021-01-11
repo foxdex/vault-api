@@ -13,6 +13,6 @@ jobs:
           chmod 0600 deploy.key
           ssh-add deploy.key
           echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-          scp sh/restart.sh ${{secrets.SERVER_USERNAME}}@${{secrets.LEND_SERVICE_HOST}}:~/sh/
-          scp docker-compose.yml ${{secrets.SERVER_USERNAME}}@${{secrets.LEND_SERVICE_HOST}}:~/sh/
-          ssh ${{secrets.SERVER_USERNAME}}@${{secrets.LEND_SERVICE_HOST}} "cd sh && sh restart.sh"
+          scp sh/restart.sh ${{secrets.LEND_SERVER_USERNAME}}@${{secrets.LEND_SERVICE_HOST}}:~/sh/
+          scp docker-compose.yml ${{secrets.LEND_SERVER_USERNAME}}@${{secrets.LEND_SERVICE_HOST}}:~/sh/
+          ssh ${{secrets.LEND_SERVER_USERNAME}}@${{secrets.LEND_SERVICE_HOST}} "cd sh && sh restart.sh"
