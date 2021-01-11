@@ -20,7 +20,7 @@ async function taskSynchronizationContractEventRecord() {
         config.forEach(el => {
               if (el.key_id == 'tron_api_url') {
                 apiData.api_url = el.key_value
-              } else if (el.key_id == 'trig_api_url') {
+              } else if (el.key_id == 'trig_url') {
                 apiData.trig_url = el.key_value
               } else if (el.key_id == 'current_environment') {
                   apiData.environment = el.key_value

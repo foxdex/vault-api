@@ -3,7 +3,8 @@ const connection = require("../../config/connection");
 const $http = require('../../api/http/config')
 // Synchronize all transaction info information of this block
 exports.getTransactionInfoByBlockTimestamp = async function getTransactionInfoByBlockTimestamp(config,ctoken){
-  console.log('getTransactionInfoByBlockTimestamp');
+  console.log('getTransactionInfoByBlockTimestamp' + JSON.stringify(config));
+    console.log('getTransactionInfoByBlockTimestamp' + JSON.stringify(ctoken));
   //   config = {
   //   api_url:'https://api.shasta.trongrid.io',
   //   contract_address:'TWenbBceEyffcNGatuCw5JBnNpsNzio2ET'
