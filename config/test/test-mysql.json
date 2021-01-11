@@ -1,7 +1,7 @@
 {
-  "host": "161.117.185.137",
+  "host": "18.166.58.56",
   "port": "3306",
-  "user": "foxdata",
-  "password": "Foxdex@2020",
-  "database": "lend-test"
+  "user": "box",
+  "password": "Box_123456",
+  "database": "box-lend"
 }

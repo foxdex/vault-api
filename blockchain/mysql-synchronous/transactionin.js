@@ -145,3 +145,6 @@ exports.updateTokenScope = async function updateTokenScope(ctoken,decimals){
 
    console.log("更新成功")
 };
+
+
+
