@@ -66,9 +66,12 @@ exports.MarketSize =  router.get("/marketSize", async (req, res) => {
 
 
     if(name){
-      let array =  await queryOwnerMintBorrowScope(req,res,name)
-        ownerMintScale = array[0];
-        ownerBorrowScale = array[1];
+        const queryOwnerMintBorrowScope = "select mint_scale,borrow_scale,mintBorrowCount from user_info where owber_address = ?";
+        let OwnerMintBorrowScope = await connection.select(queryOwnerMintBorrowScope,[name]);
+
+        let array =  updateOwnerMintBorrowScope(req,res,name,OwnerMintBorrowScope[0].mintBorrowCount);
+        ownerMintScale = OwnerMintBorrowScope[0].mint_scale;
+        ownerBorrowScale = OwnerMintBorrowScope[0].borrow_scale;
     }
 
 
@@ -103,73 +106,60 @@ module.exports = router;
 
 
 // 个人存取规模
-async function queryOwnerMintBorrowScope(req,res,ownerAddress) {
+async function updateOwnerMintBorrowScope(req,res,ownerAddress,count) {
 
 
     let ownerMintAmount = 0;
-    let repayBorrowAmount = 0;
-    let redeemAmount = 0;
     let ownerBorrowAmount = 0;
 
+    const countStr = "SELECT count(*) as mintBorrowCount FROM event_trigger where method = \"mint(uint256 mintAmount)\" or method = \"borrow(uint256 borrowAmount)\" and owber_address = ?";
+    let queryCount = await connection.select(countStr,[ownerAddress]);
 
-    //查询ctokenInfo
-    const ctokenListSTR = "select contract_address from contract_info"
-    let ctokenList = await connection.select(ctokenListSTR);
+    try {
 
-    for (let j = 0; j < ctokenList.length; j++) {
+    if(count != queryCount[0].mintBorrowCount) {
 
+        //查询ctokenInfo
+        const ctokenListSTR = "select contract_address from contract_info"
+        let ctokenList = await connection.select(ctokenListSTR);
 
-        const sqlSTR1 = "select method,parameter from event_trigger where owber_address = ? and ctoken_address = ?";
-        let data1 = await connection.select(sqlSTR1, [ownerAddress, ctokenList[j].contract_address]);
-
-        const decimalSTR = "select decimals from token_info where ctokenAddress = ?"
-        let decimalArray = await connection.select(decimalSTR, [ctokenList[j].contract_address])
-
-        if (data1) {
-
-            let ownerMintAmountTemp = 0;
-            let repayBorrowAmountTemp = 0;
-            let redeemAmountTemp = 0;
-            let ownerBorrowAmountTemp = 0;
+        for (let j = 0; j < ctokenList.length; j++) {
 
 
-            for (let i = 0; i < data1.length; i++) {
-                if (data1[i].method == "mint(uint256 mintAmount)") {
-                    let temp = data1[i].parameter;
-                    let tmp = JSON.parse(temp);
-                    ownerMintAmountTemp += Number(tmp[0]);
+            const sqlSTR1 = "select method,parameter from event_trigger where owber_address = ? and ctoken_address = ? and ( method = \"mint(uint256 mintAmount)\" or method = \"borrow(uint256 borrowAmount)\" )";
+            let data1 = await connection.select(sqlSTR1, [ownerAddress, ctokenList[j].contract_address]);
 
-                } else if (data1[i].method == "repayBorrow(uint256 repayAmount)") {
-                    let temp = data1[i].parameter;
-                    let tmp = JSON.parse(temp);
-                    repayBorrowAmountTemp += Number(tmp[0]);
-                } else if (data1[i].method == "redeem(uint256 redeemTokens)") {
-                    let temp = data1[i].parameter;
-                    let tmp = JSON.parse(temp);
-                    redeemAmountTemp += Number(tmp[0]);
-                } else if (data1[i].method == "borrow(uint256 borrowAmount)") {
-                    let temp = data1[i].parameter;
-                    let tmp = JSON.parse(temp);
-                    ownerBorrowAmountTemp += Number(tmp[0]);
+            const decimalSTR = "select decimals from token_info where ctokenAddress = ?"
+            let decimalArray = await connection.select(decimalSTR, [ctokenList[j].contract_address])
+
+            if (data1) {
+
+                let ownerMintAmountTemp = 0;
+                let ownerBorrowAmountTemp = 0;
+
+
+                for (let i = 0; i < data1.length; i++) {
+                    if (data1[i].method == "mint(uint256 mintAmount)") {
+                        let temp = data1[i].parameter;
+                        let tmp = JSON.parse(temp);
+                        ownerMintAmountTemp += Number(tmp[0]);
+                    } else if (data1[i].method == "borrow(uint256 borrowAmount)") {
+                        let temp = data1[i].parameter;
+                        let tmp = JSON.parse(temp);
+                        ownerBorrowAmountTemp += Number(tmp[0]);
+                    }
+                }
+                ownerMintAmount += ownerMintAmountTemp / Math.pow(10, decimalArray[0].decimals);
+                ownerBorrowAmount += ownerBorrowAmountTemp / Math.pow(10, decimalArray[0].decimals);
                 }
             }
-            ownerMintAmount += ownerMintAmountTemp / Math.pow(10, decimalArray[0].decimals);
-            ownerBorrowAmount += ownerBorrowAmountTemp / Math.pow(10, decimalArray[0].decimals);
-            redeemAmount += redeemAmountTemp / Math.pow(10, decimalArray[0].decimals);
-            repayBorrowAmount += repayBorrowAmountTemp / Math.pow(10, decimalArray[0].decimals);
-        } else {
-            res.json({
-                code: 404,
-                data: "For failure"
-            })
+        const updateUserInfo = "UPDATE user_info SET mint_scale = ?,borrow_scale = ?,mintBorrowCount = ? WHERE owber_address = ?"
+        await connection.select(updateUserInfo,[ownerMintAmount,ownerBorrowAmount,queryCount[0].mintBorrowCount,ownerAddress]);
+        console.log("用户信息更新成功")
         }
-
+    }catch (e) {
+        console.log(e);
     }
-
-        let array = new Array(1);
-        array[0] = ownerMintAmount;
-        array[1] = ownerBorrowAmount;
-        return array;
-    }
+}
 
 
