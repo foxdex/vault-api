@@ -58,25 +58,25 @@ exports.MarketSize =  router.get("/marketSize", async (req, res) => {
     // Define the SQL statement
     const totalScaleSql = "select SUM(mint_scale) as mintScale,SUM(borrow_scale) as borrowScale FROM token_info"
     let totalScale = await connection.select(totalScaleSql)
-    let {name}  = req.query;
+    // let {name}  = req.query;
     let totalMint = totalScale[0].mintScale;
     let totalBorrow = totalScale[0].borrowScale;
-    let ownerMintScale = 0;
-    let ownerBorrowScale = 0;
+    // let ownerMintScale = 0;
+    // let ownerBorrowScale = 0;
 
-
-    if(name){
-        const queryOwnerMintBorrowScope = "select mint_scale,borrow_scale,mintBorrowCount from user_info where owber_address = ?";
-        let OwnerMintBorrowScope = await connection.select(queryOwnerMintBorrowScope,[name]);
-
-if (!OwnerMintBorrowScope[0]){//用户第一次登录,count = -1,未拉取事件并更新到user_info表
-    OwnerMintBorrowScope[0] = new UserInfo();
-}
-
-        let array =  updateOwnerMintBorrowScope(req,res,name,OwnerMintBorrowScope[0].mintBorrowCount);
-        ownerMintScale = OwnerMintBorrowScope[0].mint_scale;
-        ownerBorrowScale = OwnerMintBorrowScope[0].borrow_scale;
-    }
+//
+//     if(name){
+//         const queryOwnerMintBorrowScope = "select mint_scale,borrow_scale,mintBorrowCount from user_info where owber_address = ?";
+//         let OwnerMintBorrowScope = await connection.select(queryOwnerMintBorrowScope,[name]);
+//
+// if (!OwnerMintBorrowScope[0]){//用户第一次登录,count = -1,未拉取事件并更新到user_info表
+//     OwnerMintBorrowScope[0] = new UserInfo();
+// }
+//
+//         let array =  updateOwnerMintBorrowScope(req,res,name,OwnerMintBorrowScope[0].mintBorrowCount);
+//         ownerMintScale = OwnerMintBorrowScope[0].mint_scale;
+//         ownerBorrowScale = OwnerMintBorrowScope[0].borrow_scale;
+//     }
 
 
 
@@ -85,8 +85,8 @@ if (!OwnerMintBorrowScope[0]){//用户第一次登录,count = -1,未拉取事件
     "data":{
       "market_deposit":totalMint,
       "market_withdrawals":totalBorrow,
-        "ownerMintScale":ownerMintScale,
-        "ownerBorrowScale":ownerBorrowScale,
+        // "ownerMintScale":ownerMintScale,
+        // "ownerBorrowScale":ownerBorrowScale,
         "apy":"17",
       "Pledgerate":"400"
     }
@@ -110,74 +110,74 @@ module.exports = router;
 
 
 // 个人存取规模
-async function updateOwnerMintBorrowScope(req,res,ownerAddress,count) {
+// async function updateOwnerMintBorrowScope(req,res,ownerAddress,count) {
+//
+//
+//     let ownerMintAmount = 0;
+//     let ownerBorrowAmount = 0;
+//
+//     const countStr = "SELECT count(*) as mintBorrowCount FROM event_trigger where method = \"mint(uint256 mintAmount)\" or method = \"borrow(uint256 borrowAmount)\" and owber_address = ?";
+//     let queryCount = await connection.select(countStr,[ownerAddress]);
+//
+//     try {
+//
+//         //如果user_info没有该用户，拉取事件并加入
+//
+//
+//         if(count != queryCount[0].mintBorrowCount) {
+//
+//         //查询ctokenInfo
+//         const ctokenListSTR = "select contract_address from contract_info"
+//         let ctokenList = await connection.select(ctokenListSTR);
+//
+//         for (let j = 0; j < ctokenList.length; j++) {
+//
+//
+//             const sqlSTR1 = "select method,parameter from event_trigger where owber_address = ? and ctoken_address = ? and ( method = \"mint(uint256 mintAmount)\" or method = \"borrow(uint256 borrowAmount)\" )";
+//             let data1 = await connection.select(sqlSTR1, [ownerAddress, ctokenList[j].contract_address]);
+//
+//             const decimalSTR = "select decimals from token_info where ctokenAddress = ?"
+//             let decimalArray = await connection.select(decimalSTR, [ctokenList[j].contract_address])
+//
+//             if (data1) {
+//
+//                 let ownerMintAmountTemp = 0;
+//                 let ownerBorrowAmountTemp = 0;
+//
+//
+//                 for (let i = 0; i < data1.length; i++) {
+//                     if (data1[i].method == "mint(uint256 mintAmount)") {
+//                         let temp = data1[i].parameter;
+//                         let tmp = JSON.parse(temp);
+//                         ownerMintAmountTemp += Number(tmp[0]);
+//                     } else if (data1[i].method == "borrow(uint256 borrowAmount)") {
+//                         let temp = data1[i].parameter;
+//                         let tmp = JSON.parse(temp);
+//                         ownerBorrowAmountTemp += Number(tmp[0]);
+//                     }
+//                 }
+//                 ownerMintAmount += ownerMintAmountTemp / Math.pow(10, decimalArray[0].decimals);
+//                 ownerBorrowAmount += ownerBorrowAmountTemp / Math.pow(10, decimalArray[0].decimals);
+//                 }
+//             }
+//         if(count == -1){//-1时插入新用户
+//            const insertUserInfo = "Insert into user_info values (?,?,?,?)"
+//            await connection.insert(insertUserInfo,[ownerAddress,ownerMintAmount,ownerBorrowAmount,queryCount[0].mintBorrowCount])
+//
+//         }else {//-1或0时
+//             const updateUserInfo = "UPDATE user_info SET mint_scale = ?,borrow_scale = ?,mintBorrowCount = ? WHERE owber_address = ?"
+//             await connection.select(updateUserInfo, [ownerMintAmount, ownerBorrowAmount, queryCount[0].mintBorrowCount, ownerAddress]);
+//             console.log("用户信息更新成功")
+//         }
+//         }
+//     }catch (e) {
+//         console.log(e);
+//     }
+// }
 
-
-    let ownerMintAmount = 0;
-    let ownerBorrowAmount = 0;
-
-    const countStr = "SELECT count(*) as mintBorrowCount FROM event_trigger where method = \"mint(uint256 mintAmount)\" or method = \"borrow(uint256 borrowAmount)\" and owber_address = ?";
-    let queryCount = await connection.select(countStr,[ownerAddress]);
-
-    try {
-
-        //如果user_info没有该用户，拉取事件并加入
-
-
-        if(count != queryCount[0].mintBorrowCount) {
-
-        //查询ctokenInfo
-        const ctokenListSTR = "select contract_address from contract_info"
-        let ctokenList = await connection.select(ctokenListSTR);
-
-        for (let j = 0; j < ctokenList.length; j++) {
-
-
-            const sqlSTR1 = "select method,parameter from event_trigger where owber_address = ? and ctoken_address = ? and ( method = \"mint(uint256 mintAmount)\" or method = \"borrow(uint256 borrowAmount)\" )";
-            let data1 = await connection.select(sqlSTR1, [ownerAddress, ctokenList[j].contract_address]);
-
-            const decimalSTR = "select decimals from token_info where ctokenAddress = ?"
-            let decimalArray = await connection.select(decimalSTR, [ctokenList[j].contract_address])
-
-            if (data1) {
-
-                let ownerMintAmountTemp = 0;
-                let ownerBorrowAmountTemp = 0;
-
-
-                for (let i = 0; i < data1.length; i++) {
-                    if (data1[i].method == "mint(uint256 mintAmount)") {
-                        let temp = data1[i].parameter;
-                        let tmp = JSON.parse(temp);
-                        ownerMintAmountTemp += Number(tmp[0]);
-                    } else if (data1[i].method == "borrow(uint256 borrowAmount)") {
-                        let temp = data1[i].parameter;
-                        let tmp = JSON.parse(temp);
-                        ownerBorrowAmountTemp += Number(tmp[0]);
-                    }
-                }
-                ownerMintAmount += ownerMintAmountTemp / Math.pow(10, decimalArray[0].decimals);
-                ownerBorrowAmount += ownerBorrowAmountTemp / Math.pow(10, decimalArray[0].decimals);
-                }
-            }
-        if(count == -1){//-1时插入新用户
-           const insertUserInfo = "Insert into user_info values (?,?,?,?)"
-           await connection.insert(insertUserInfo,[ownerAddress,ownerMintAmount,ownerBorrowAmount,queryCount[0].mintBorrowCount])
-
-        }else {//-1或0时
-            const updateUserInfo = "UPDATE user_info SET mint_scale = ?,borrow_scale = ?,mintBorrowCount = ? WHERE owber_address = ?"
-            await connection.select(updateUserInfo, [ownerMintAmount, ownerBorrowAmount, queryCount[0].mintBorrowCount, ownerAddress]);
-            console.log("用户信息更新成功")
-        }
-        }
-    }catch (e) {
-        console.log(e);
-    }
-}
-
-class UserInfo {
-    constructor(){
-        this.mintBorrowCount = -1;
-    }
-    mintBorrowCount;
-}
+// class UserInfo {
+//     constructor(){
+//         this.mintBorrowCount = -1;
+//     }
+//     mintBorrowCount;
+// }

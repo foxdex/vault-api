@@ -113,45 +113,45 @@ exports.getTokenInfo = async function getTokenInfo() {
 
 
 
-
-exports.updateTokenScope = async function updateTokenScope(ctoken,decimals){
-    const sqlSTR1 = "select method,parameter from event_trigger where ctoken_address = ?";
-    let data1 = await connection.select(sqlSTR1,[ctoken]);
-
-
-    let mintAmount = 0;
-    let repayBorrowAmount = 0;
-    let redeemAmount = 0;
-    let borrowAmount = 0;
-
-
-   for(let i = 0;i < data1.length;i++){
-            if((data1[i].method == "mint(uint256 mintAmount)" || data1[i].method =="mint()") && data1[i].parameter != null){
-                let temp = data1[i].parameter;
-                let tmp = JSON.parse(temp);
-                mintAmount += Number(tmp[0]);
-                console.log(mintAmount);
-            }else if ((data1[i].method == "repayBorrow(uint256 repayAmount)" || data1[i].method =="repayBorrow()") && data1[i].parameter != null){
-                let temp = data1[i].parameter;
-                let tmp = JSON.parse(temp);
-                repayBorrowAmount += Number(tmp[0]);
-            } else if ((data1[i].method == "redeem(uint256 redeemTokens)" || data1[i].method == "redeem()") && data1[i].parameter != null){
-                let temp = data1[i].parameter;
-                let tmp = JSON.parse(temp);
-                redeemAmount += Number(tmp[0]);
-            } else if ((data1[i].method == "borrow(uint256 borrowAmount)" || data1[i].method == "borrow()")&& data1[i].parameter != null){
-                let temp = data1[i].parameter;
-                let tmp = JSON.parse(temp);
-                borrowAmount += Number(tmp[0]);
-            }
-        }
-         borrowAmount = borrowAmount / Math.pow(10,decimals);
-         mintAmount = mintAmount / Math.pow(10,decimals);
-        const sqlInsert = "update token_info set mint_scale = ?,borrow_scale = ? where ctokenAddress = ?"
-        await connection.select(sqlInsert,[mintAmount,borrowAmount,ctoken]);
-
-   console.log("更新成功")
-};
+//
+// exports.updateTokenScope = async function updateTokenScope(ctoken,decimals){
+//     const sqlSTR1 = "select method,parameter from event_trigger where ctoken_address = ?";
+//     let data1 = await connection.select(sqlSTR1,[ctoken]);
+//
+//
+//     let mintAmount = 0;
+//     let repayBorrowAmount = 0;
+//     let redeemAmount = 0;
+//     let borrowAmount = 0;
+//
+//
+//    for(let i = 0;i < data1.length;i++){
+//             if((data1[i].method == "mint(uint256 mintAmount)" || data1[i].method =="mint()") && data1[i].parameter != null){
+//                 let temp = data1[i].parameter;
+//                 let tmp = JSON.parse(temp);
+//                 mintAmount += Number(tmp[0]);
+//                 console.log(mintAmount);
+//             }else if ((data1[i].method == "repayBorrow(uint256 repayAmount)" || data1[i].method =="repayBorrow()") && data1[i].parameter != null){
+//                 let temp = data1[i].parameter;
+//                 let tmp = JSON.parse(temp);
+//                 repayBorrowAmount += Number(tmp[0]);
+//             } else if ((data1[i].method == "redeem(uint256 redeemTokens)" || data1[i].method == "redeem()") && data1[i].parameter != null){
+//                 let temp = data1[i].parameter;
+//                 let tmp = JSON.parse(temp);
+//                 redeemAmount += Number(tmp[0]);
+//             } else if ((data1[i].method == "borrow(uint256 borrowAmount)" || data1[i].method == "borrow()")&& data1[i].parameter != null){
+//                 let temp = data1[i].parameter;
+//                 let tmp = JSON.parse(temp);
+//                 borrowAmount += Number(tmp[0]);
+//             }
+//         }
+//          borrowAmount = borrowAmount / Math.pow(10,decimals);
+//          mintAmount = (mintAmount / Math.pow(10,decimals)) - (redeemAmount/Math.pow(10,18))   ;
+//         const sqlInsert = "update token_info set mint_scale = ?,borrow_scale = ? where ctokenAddress = ?"
+//         await connection.select(sqlInsert,[mintAmount,borrowAmount,ctoken]);
+//
+//    console.log("更新成功")
+// };
 
 
 
