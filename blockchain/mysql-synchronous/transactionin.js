@@ -126,20 +126,20 @@ exports.updateTokenScope = async function updateTokenScope(ctoken,decimals){
 
 
    for(let i = 0;i < data1.length;i++){
-            if(data1[i].method == "mint(uint256 mintAmount)" && data1[i].method != "mint()"){
+            if(data1[i].method == "mint(uint256 mintAmount)" && data1[i].parameter != null){
                 let temp = data1[i].parameter;
                 let tmp = JSON.parse(temp);
                 mintAmount += Number(tmp[0]);
                 console.log(mintAmount);
-            }else if (data1[i].method == "repayBorrow(uint256 repayAmount)"&& data1[i].method != "repayBorrow()"){
+            }else if (data1[i].method == "repayBorrow(uint256 repayAmount)" && data1[i].parameter != null){
                 let temp = data1[i].parameter;
                 let tmp = JSON.parse(temp);
                 repayBorrowAmount += Number(tmp[0]);
-            } else if (data1[i].method == "redeem(uint256 redeemTokens)"&& data1[i].method != "redeem()"){
+            } else if (data1[i].method == "redeem(uint256 redeemTokens)" && data1[i].parameter != null){
                 let temp = data1[i].parameter;
                 let tmp = JSON.parse(temp);
                 redeemAmount += Number(tmp[0]);
-            } else if (data1[i].method == "borrow(uint256 borrowAmount)"&& data1[i].method != "borrow()"){
+            } else if (data1[i].method == "borrow(uint256 borrowAmount)" && data1[i].parameter != null){
                 let temp = data1[i].parameter;
                 let tmp = JSON.parse(temp);
                 borrowAmount += Number(tmp[0]);
