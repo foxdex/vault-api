@@ -6,7 +6,7 @@ exports.taskStart = function taskStart(){
     taskSynchronizationContractEventRecord()
     setTimeout(function () {
       console.log('211321321');
-           setInterval(taskSynchronizationContractEventRecord,100000);;
+           setInterval(taskSynchronizationContractEventRecord,150000);;
     }, 1000);
 }
 
@@ -28,7 +28,7 @@ async function taskSynchronizationContractEventRecord() {
         });
       for (let i = 0 ;i< token.length;i++) {
       await transactionin.getTransactionInfoByBlockTimestamp(apiData,token[i]);
-          // await transactionin.updateTokenScope(token[i].ctokenAddress,token[i].decimals)//更新token存借规模
+      await transactionin.updateTokenInfo(token[i]);
       }
     } catch (error) {
         console.log('taskSynchronizationContractEventRecord===='+error);

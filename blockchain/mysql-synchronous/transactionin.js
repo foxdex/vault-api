@@ -7,23 +7,22 @@ const {getCashPrior , totalBorrows ,decimals} = require('../show/tronweb-show')
 exports.getTransactionInfoByBlockTimestamp = async function getTransactionInfoByBlockTimestamp(config,ctoken){
   console.log('getTransactionInfoByBlockTimestamp' + JSON.stringify(config));
     console.log('getTransactionInfoByBlockTimestamp' + JSON.stringify(ctoken));
-  //   config = {
-  //   api_url:'https://api.shasta.trongrid.io',
-  //   contract_address:'TWenbBceEyffcNGatuCw5JBnNpsNzio2ET'
-  //  }
-  testDemo()
-  //  try {
-  //   let data = await $http.get(config.api_url+"/event/contract/"+ctoken.ctokenAddress);
-  //   let hashList= data.map(el => {
-  //        return el.transaction_id
-  //   });
-  //   console.log(data);
-  //    let data1 = await $http.post(config.trig_url+'/api/contracts/smart-contract-triggers-batch',JSON.stringify({hashList:hashList}));
-  //    contractTradeSynchronizationRecord(data1,config)
+    config = {
+    api_url:'https://api.shasta.trongrid.io',
+    contract_address:'TWenbBceEyffcNGatuCw5JBnNpsNzio2ET'
+   }
+   try {
+    let data = await $http.get(config.api_url+"/event/contract/"+ctoken.ctokenAddress);
+    let hashList= data.map(el => {
+         return el.transaction_id
+    });
+    console.log(data);
+     let data1 = await $http.post(config.trig_url+'/api/contracts/smart-contract-triggers-batch',JSON.stringify({hashList:hashList}));
+     contractTradeSynchronizationRecord(data1,config)
 
-  //  } catch (error) {
-  //     console.log('getTransactionInfoByBlockTimestamp==err='+error)
-  //  }
+   } catch (error) {
+      console.log('getTransactionInfoByBlockTimestamp==err='+error)
+   }
 
 }
 
@@ -110,11 +109,11 @@ exports.getTokenInfo = async function getTokenInfo() {
   }
 }
 
-async function testDemo() {
-  let selSql = "SELECT *  FROM token_info"
-  let data =await connection.selectAll(selSql);
-  for (let index = 0; index < data.length; index++) {
-      let el = data[index];
+exports.updateTokenInfo = async function testDemo(data) {
+  // let selSql = "SELECT *  FROM token_info"
+  // let data =await connection.selectAll(selSql);
+  // for (let index = 0; index < data.length; index++) {
+      let el = data;
      let cash = await getCashPrior(el.ctokenAddress);
      let totalBorrow = await totalBorrows(el.ctokenAddress)
      let decimal = el.decimals;
@@ -123,8 +122,8 @@ async function testDemo() {
       let sql = 'update token_info set mint_scale = ?,borrow_scale = ? where ctokenAddress = ?'
       let pramas = [cashs ,totalBorrowss ,el.ctokenAddress]
        await connection.update(sql,pramas)
+    console.log("tokenInfo更新成功");
   }
-}
 
 
 
