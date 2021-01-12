@@ -14,11 +14,9 @@ exports.getTransactionInfoByBlockTimestamp = async function getTransactionInfoBy
     let hashList= data.map(el => {
          return el.transaction_id
     });
-
-
+    console.log(data);
      let data1 = await $http.post(config.trig_url+'/api/contracts/smart-contract-triggers-batch',JSON.stringify({hashList:hashList}));
-     contractTradeSynchronizationRecord(data1)
-
+     contractTradeSynchronizationRecord(data1,config)
 
    } catch (error) {
       console.log('getTransactionInfoByBlockTimestamp==err='+error)
@@ -26,15 +24,23 @@ exports.getTransactionInfoByBlockTimestamp = async function getTransactionInfoBy
  
 }
 
-
+async function getHashTransaction (hash) {
+      return new Promise(relove,rejct =>{
+            
+      })
+}
 // Insert Contract Trade Synchronization Record
- async function contractTradeSynchronizationRecord(json,ctoken){
+ async function contractTradeSynchronizationRecord(json,config){
    console.log('contractTradeSynchronizationRecord');
         let json1 = json.list;
         let selSql = 'SELECT hash FROM event_trigger'
         let data = await connection.select(selSql);
       for (let i = 0; i<json1.length;i++) {
       let { date_created, hash, method,owner_address,parameter,contract_address} = json1[i];
+    if (parameter == "{}") {
+        let strs = await $http.get(config.trig_url+'/api/transaction-info?hash=' + hash);
+        parameter = JSON.stringify({'0':strs.trigger_info.call_value}) 
+    }
       let addSql = "INSERT INTO event_trigger(date_created,hash,method,owber_address,parameter,ctoken_address)  VALUES(?,?,?,?,?,?)";
       let sqlData = [ date_created ,hash, method, owner_address, parameter ,contract_address];
       if (data.length == 0) {
