@@ -91,6 +91,35 @@ const getTokenDenormalizedWeight =(coinAddress,contractAddress) => {
     })
 }
 
+const getCashPrior  = (contractAddress) => {
+  return new Promise ((resolve, reject)=> {
+    var functionSelector = 'getCash()';
+    var parameter = [ ]
+    tronWeb.transactionBuilder.triggerConstantContract(contractAddress, functionSelector, {}, parameter).then((transaction)=>{
+        if (transaction) {
+            let getCashPrior = transaction.constant_result[0]
+            resolve(getCashPrior)
+        }else{
+           reject()
+        }
+    })
+  })
+}
+
+const totalBorrows   = (contractAddress) => {
+  return new Promise ((resolve, reject)=> {
+    var functionSelector = 'totalBorrows()';
+    var parameter = [ ]
+    tronWeb.transactionBuilder.triggerConstantContract(contractAddress, functionSelector, {}, parameter).then((transaction)=>{
+        if (transaction) {
+            let totalBorrows = transaction.constant_result[0]
+            resolve(totalBorrows)
+        }else{
+           reject()
+        }
+    })
+  })
+}
 // Get the output quantity of each flow pool
 const getLpPerBlockToken = (contractAddress) =>{
     return new Promise(function (resolve, reject) {
@@ -110,4 +139,6 @@ module.exports = {
     getLpBalanceInPool,// Get total lptoken
     getTokenDenormalizedWeight,// Get the weight of token in the transaction pair
     getLpPerBlockToken,// Get the output quantity of each flow pool
+    getCashPrior,
+    totalBorrows
 };
