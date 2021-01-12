@@ -120,7 +120,7 @@ exports.updateTokenScope = async function updateTokenScope(ctoken,decimals){
 
 
    for(let i = 0;i < data1.length;i++){
-            if(data1[i].method == "mint(uint256 mintAmount)"){
+            if(data1[i].method == "mint(uint256 mintAmount)" || data1[i].method == "mint()"){
                 let temp = data1[i].parameter;
                 let tmp = JSON.parse(temp);
                 mintAmount += Number(tmp[0]);
