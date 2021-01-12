@@ -1,6 +1,8 @@
 /*Chain transactions - Data synchronization*/
 const connection = require("../../config/connection");
 const $http = require('../../api/http/config')
+const BigNumber = require('bignumber.js')
+const {getCashPrior , totalBorrows ,decimals} = require('../show/tronweb-show')
 // Synchronize all transaction info information of this block
 exports.getTransactionInfoByBlockTimestamp = async function getTransactionInfoByBlockTimestamp(config,ctoken){
   console.log('getTransactionInfoByBlockTimestamp' + JSON.stringify(config));
@@ -9,19 +11,20 @@ exports.getTransactionInfoByBlockTimestamp = async function getTransactionInfoBy
   //   api_url:'https://api.shasta.trongrid.io',
   //   contract_address:'TWenbBceEyffcNGatuCw5JBnNpsNzio2ET'
   //  }
-   try {
-    let data = await $http.get(config.api_url+"/event/contract/"+ctoken.ctokenAddress);
-    let hashList= data.map(el => {
-         return el.transaction_id
-    });
-    console.log(data);
-     let data1 = await $http.post(config.trig_url+'/api/contracts/smart-contract-triggers-batch',JSON.stringify({hashList:hashList}));
-     contractTradeSynchronizationRecord(data1,config)
+  testDemo()
+  //  try {
+  //   let data = await $http.get(config.api_url+"/event/contract/"+ctoken.ctokenAddress);
+  //   let hashList= data.map(el => {
+  //        return el.transaction_id
+  //   });
+  //   console.log(data);
+  //    let data1 = await $http.post(config.trig_url+'/api/contracts/smart-contract-triggers-batch',JSON.stringify({hashList:hashList}));
+  //    contractTradeSynchronizationRecord(data1,config)
 
-   } catch (error) {
-      console.log('getTransactionInfoByBlockTimestamp==err='+error)
-   }
- 
+  //  } catch (error) {
+  //     console.log('getTransactionInfoByBlockTimestamp==err='+error)
+  //  }
+
 }
 
 async function getHashTransaction (hash) {
@@ -81,7 +84,6 @@ Date.prototype.Format = function(fmt) {
 }
 
 
-
 exports.getContractInfoConfig = async function getContractInfoConfig() {
   
   // let selSql = "SELECT *  FROM contract_info"
@@ -108,6 +110,21 @@ exports.getTokenInfo = async function getTokenInfo() {
   }
 }
 
+async function testDemo() {
+  let selSql = "SELECT *  FROM token_info"
+  let data =await connection.selectAll(selSql);
+  for (let index = 0; index < data.length; index++) {
+      let el = data[index];
+     let cash = await getCashPrior(el.ctokenAddress);
+     let totalBorrow = await totalBorrows(el.ctokenAddress)
+     let decimal = el.decimals;
+      let cashs=    new BigNumber(cash,16).div(new BigNumber(10).pow(decimal)).toFixed()
+      let totalBorrowss=    new BigNumber(totalBorrow,16).div(new BigNumber(10).pow(decimal)).toFixed()
+      let sql = 'update token_info set mint_scale = ?,borrow_scale = ? where ctokenAddress = ?'
+      let pramas = [cashs ,totalBorrowss ,el.ctokenAddress]
+       await connection.update(sql,pramas)
+  }
+}
 
 
 
