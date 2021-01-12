@@ -69,6 +69,10 @@ exports.MarketSize =  router.get("/marketSize", async (req, res) => {
         const queryOwnerMintBorrowScope = "select mint_scale,borrow_scale,mintBorrowCount from user_info where owber_address = ?";
         let OwnerMintBorrowScope = await connection.select(queryOwnerMintBorrowScope,[name]);
 
+if (!OwnerMintBorrowScope[0]){//用户第一次登录,count = -1,未拉取事件并更新到user_info表
+    OwnerMintBorrowScope[0] = new UserInfo();
+}
+
         let array =  updateOwnerMintBorrowScope(req,res,name,OwnerMintBorrowScope[0].mintBorrowCount);
         ownerMintScale = OwnerMintBorrowScope[0].mint_scale;
         ownerBorrowScale = OwnerMintBorrowScope[0].borrow_scale;
@@ -117,7 +121,10 @@ async function updateOwnerMintBorrowScope(req,res,ownerAddress,count) {
 
     try {
 
-    if(count != queryCount[0].mintBorrowCount) {
+        //如果user_info没有该用户，拉取事件并加入
+
+
+        if(count != queryCount[0].mintBorrowCount) {
 
         //查询ctokenInfo
         const ctokenListSTR = "select contract_address from contract_info"
@@ -153,13 +160,24 @@ async function updateOwnerMintBorrowScope(req,res,ownerAddress,count) {
                 ownerBorrowAmount += ownerBorrowAmountTemp / Math.pow(10, decimalArray[0].decimals);
                 }
             }
-        const updateUserInfo = "UPDATE user_info SET mint_scale = ?,borrow_scale = ?,mintBorrowCount = ? WHERE owber_address = ?"
-        await connection.select(updateUserInfo,[ownerMintAmount,ownerBorrowAmount,queryCount[0].mintBorrowCount,ownerAddress]);
-        console.log("用户信息更新成功")
+        if(count == -1){//-1时插入新用户
+           const insertUserInfo = "Insert into user_info values (?,?,?,?)"
+           await connection.insert(insertUserInfo,[ownerAddress,ownerMintAmount,ownerBorrowAmount,queryCount[0].mintBorrowCount])
+
+        }else {//-1或0时
+            const updateUserInfo = "UPDATE user_info SET mint_scale = ?,borrow_scale = ?,mintBorrowCount = ? WHERE owber_address = ?"
+            await connection.select(updateUserInfo, [ownerMintAmount, ownerBorrowAmount, queryCount[0].mintBorrowCount, ownerAddress]);
+            console.log("用户信息更新成功")
+        }
         }
     }catch (e) {
         console.log(e);
     }
 }
 
-
+class UserInfo {
+    constructor(){
+        this.mintBorrowCount = -1;
+    }
+    mintBorrowCount;
+}
