@@ -6,7 +6,7 @@ exports.taskStart = function taskStart(){
     taskSynchronizationContractEventRecord()
     setTimeout(function () {
       console.log('211321321');
-           setInterval(taskSynchronizationContractEventRecord,200000);;
+           setInterval(taskSynchronizationContractEventRecord,600000);;
     }, 1000);
 }
 
