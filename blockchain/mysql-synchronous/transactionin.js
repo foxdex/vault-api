@@ -137,8 +137,8 @@ try {
     for (let i = 0; i < token.length; i++) {
 
         if (token[i].price_check == false) {
-            token[i].current_price = getBpoolToken(token[i]);
-            let result = connection.update(updatePrice, [token[i].current_price, token[i].token_id])
+            token[i].current_price = await getBpoolToken(token[i]);
+            let result = await connection.update(updatePrice, [token[i].current_price, token[i].token_id])
         }
          let name = token[i].name;
         if(name == "USDT"){
@@ -150,7 +150,7 @@ try {
     let APY = (priceBox * 365) / total
     return APY
 }catch (e) {
-    console.log(e)
+    console.log( 'updateApyAndTokenPrice======'+e)
 }
 }
 
@@ -176,10 +176,18 @@ async function updateCurrentPriceByName(current_price,name){
   let updParams = [ current_price,name ]
   await connection.update(updSql,updParams);
 };
+async function getCloseFactorMantissa (token) {
+  const riskControllAddressSQL = "select key_value from dictionary_value where key_id = 'risk_controll_address'"
+    let temp =await connection.select(riskControllAddressSQL);
+    let arry = await tronWeb.contract().at(temp);
+    let arr1 = await arry.markets(token.ctokenAddress).call() 
+    let arr2 = new BigNumber(arr1.collateralFactorMantissa._hex, 16).div(new BigNumber(10).pow(18)).toFixed()
+    return arr2;
 
+}
 async function getBpoolToken(token){
     const riskControllAddressSQL = "select key_value from dictionary_value where key_id = 'risk_controll_address'"
-    let temp = connection.select(riskControllAddressSQL);
+    let temp =await connection.select(riskControllAddressSQL);
     let comptrToken = temp[0].key_value;//数据库里查
     // TYM1GyCB8cg5YC37WgkkBnVXn8qwd5hr9L   ctoken
     try {
