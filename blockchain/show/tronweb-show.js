@@ -6,6 +6,7 @@ const eventServer = new HttpProvider("https://api.trongrid.io");
 const privateKey = "3481E79956D4BD95F358AC96D151C976392FC4E3FC132F78A847906DE588C145";
 const tronWeb = new TronWeb(fullNode,solidityNode,eventServer,privateKey);
 const BigNumber = require('bignumber.js')
+const connection = require("../../config/connection");
 // Initializing tronweb
 const initTronWeb = () => {
     return new Promise(function (resolve, reject) {
@@ -138,8 +139,8 @@ const getSupplyRatePerBlock = async (token) => { // Deposit block rate
     let that = this
     var functionSelector = 'supplyRatePerBlock()';
     var parameter = []
-    tronWeb.transactionBuilder.triggerConstantContract(item.ctokenAddress, functionSelector, {}, parameter).then((transaction) => {
-      let supplyRatePerBlock = new BigNumber(parseInt(transaction.constant_result[0], 16)).times(new BigNumber(28800)).times(365).div(new BigNumber(10).pow(item.cdecimals)).times(100).toFixed(2)
+    tronWeb.transactionBuilder.triggerConstantContract(token.ctokenAddress, functionSelector, {}, parameter).then((transaction) => {
+      let supplyRatePerBlock = new BigNumber(parseInt(transaction.constant_result[0], 16)).times(new BigNumber(28800)).times(365).div(new BigNumber(10).pow(token.cdecimals)).times(100).toFixed(2)
       resolve(supplyRatePerBlock);
     })
   })
@@ -149,13 +150,38 @@ const getBorrowRatePerBlock = async (token) => { //  Borrowing block rate
     let that = this
     var functionSelector = 'borrowRatePerBlock()';
     var parameter = []
-    tronWeb.transactionBuilder.triggerConstantContract(item.ctokenAddress, functionSelector, {}, parameter).then((transaction) => {
+    tronWeb.transactionBuilder.triggerConstantContract(token.ctokenAddress, functionSelector, {}, parameter).then((transaction) => {
       let borrowRatePerBlock = new BigNumber(parseInt(transaction.constant_result[0], 16)).times(new BigNumber(28800)).times(365).div(new BigNumber(10).pow(token.cdecimals)).times(100).toFixed(2)
       resolve(borrowRatePerBlock);
     })
   })
 }
 
+const getCloseFactorMantissa=   async (token)=> {
+  const riskControllAddressSQL = "select key_value from dictionary_value where key_id = 'risk_controll_address'"
+    let temp =await connection.select(riskControllAddressSQL);
+    let arry = await tronWeb.contract().at(temp[0].key_value);
+    let arr1 = await arry.markets(token.ctokenAddress).call() 
+    let arr2 = new BigNumber(arr1.collateralFactorMantissa._hex, 16).div(new BigNumber(10).pow(18)).toFixed()
+    return arr2;
+
+}
+ const getBpoolToken =  async  (token)=> {
+    const riskControllAddressSQL = "select key_value from dictionary_value where key_id = 'risk_controll_address'"
+    let temp =await connection.select(riskControllAddressSQL);
+    let comptrToken = temp[0].key_value;//数据库里查
+    // TYM1GyCB8cg5YC37WgkkBnVXn8qwd5hr9L   ctoken
+    try {
+        let Comptroller =await tronWeb.contract().at(comptrToken);
+        let oracle = await Comptroller.oracle().call()
+        let oracle1 = await tronWeb.contract().at(oracle);
+        let getTokenPrice = await oracle1.getUnderlyingPrice(token.ctokenAddress).call()
+        let price = new BigNumber(getTokenPrice._hex, 16).div(new BigNumber(10).pow(token.decimals)).toFixed()
+        return price
+    } catch (error) {
+        console.log('getBpoolToken=====error==' + error);
+    }
+}
 
 module.exports = {
     decimals,// Query precision
@@ -166,5 +192,7 @@ module.exports = {
     getCashPrior,
     totalBorrows,
     getSupplyRatePerBlock,
-    getBorrowRatePerBlock
+    getBorrowRatePerBlock,
+    getCloseFactorMantissa,
+    getBpoolToken
 };
