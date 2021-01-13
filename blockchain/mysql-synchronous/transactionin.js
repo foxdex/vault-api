@@ -2,7 +2,7 @@
 const connection = require("../../config/connection");
 const $http = require('../../api/http/config')
 const BigNumber = require('bignumber.js')
-const {getCashPrior , totalBorrows ,decimals} = require('../show/tronweb-show')
+const {getCashPrior , totalBorrows ,decimals ,getBpoolToken ,getSupplyRatePerBlock ,getBorrowRatePerBlock,getCloseFactorMantissa} = require('../show/tronweb-show')
 // Synchronize all transaction info information of this block
 const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
   console.log('getTransactionInfoByBlockTimestamp' + JSON.stringify(config));
@@ -26,11 +26,6 @@ const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
 
 }
 
-async function getHashTransaction (hash) {
-      return new Promise(relove,rejct =>{
-            
-      })
-}
 // Insert Contract Trade Synchronization Record
  async function contractTradeSynchronizationRecord(json,config){
    console.log('contractTradeSynchronizationRecord');
@@ -129,6 +124,7 @@ const getTokenInfo = async ()=> {
 
 const updateTokenPrice = async function updateApyAndTokenPrice(token) {
     getCoingeckoMarkets();
+    
 try {
 
     let total = 0;
@@ -177,47 +173,25 @@ async function updateCurrentPriceByName(current_price,name){
 
 const updateTokenRate = async function updateTokenRate(token) {
 
-
-    const tronweb_show = require("../show/tronweb-show");
-
+  try {
     let pledgeRate;
     let borrowRate;
     let mintRate;
-    mintRate = await tronweb_show.getSupplyRatePerBlock(token);
-    borrowRate = await tronweb_show.getBorrowRatePerBlock(token);
+    mintRate = await getSupplyRatePerBlock(token);
+    borrowRate = await getBorrowRatePerBlock(token);
     pledgeRate = await getCloseFactorMantissa(token);
-
     let updSql = "update token_info set mint_rate = ?,borrow_rate = ?,pledge_rate = ? where token_id = ?";
-    connection.update(updSql,[mintRate,borrowRate,pledgeRate,token.token_id])
-
+    await connection.update(updSql,[mintRate,borrowRate,pledgeRate,token.token_id])
     console.log(mintRate,borrowRate,pledgeRate+"更新成功")
-}
 
-async function getCloseFactorMantissa (token) {
-  const riskControllAddressSQL = "select key_value from dictionary_value where key_id = 'risk_controll_address'"
-    let temp =await connection.select(riskControllAddressSQL);
-    let arry = await tronWeb.contract().at(temp);
-    let arr1 = await arry.markets(token.ctokenAddress).call() 
-    let arr2 = new BigNumber(arr1.collateralFactorMantissa._hex, 16).div(new BigNumber(10).pow(18)).toFixed()
-    return arr2;
+  } catch (error) {
+        console.log('updateTokenRatesss====' + error);
+  }
+
+
 
 }
-async function getBpoolToken(token){
-    const riskControllAddressSQL = "select key_value from dictionary_value where key_id = 'risk_controll_address'"
-    let temp =await connection.select(riskControllAddressSQL);
-    let comptrToken = temp[0].key_value;//数据库里查
-    // TYM1GyCB8cg5YC37WgkkBnVXn8qwd5hr9L   ctoken
-    try {
-        let Comptroller =await tronWeb.contract().at(comptrToken);
-        let oracle = await Comptroller.oracle().call()
-        let oracle1 = await tronWeb.contract().at(oracle);
-        let getTokenPrice = await oracle1.getUnderlyingPrice(token.ctokenAddress).call()
-        let price = new BigNumber(getTokenPrice._hex, 16).div(new BigNumber(10).pow(token.decimals)).toFixed()
-        return price
-    } catch (error) {
-        console.log('getBpoolToken=====error==' + error);
-    }
-}
+
 
 
 
