@@ -119,7 +119,7 @@ const getTokenInfo = async ()=> {
      let decimal = el.decimals;
       let cashs=    new BigNumber(cash,16).div(new BigNumber(10).pow(decimal)).toFixed()
       let totalBorrowss=    new BigNumber(totalBorrow,16).div(new BigNumber(10).pow(decimal)).toFixed()
-      let sql = 'update token_info set mint_scale = ?,borrow_scale = ? ,abi = ? where ctokenAddress = ?'
+      let sql = 'update token_info set mint_scale = ?,borrow_scale = ? where ctokenAddress = ?'
       let pramas = [cashs ,totalBorrowss ,el.ctokenAddress]
        await connection.update(sql,pramas)
     console.log("tokenInfo更新成功");
@@ -127,7 +127,7 @@ const getTokenInfo = async ()=> {
 
 
 
-const updateApyAndTokenPrice = async function updateApyAndTokenPrice(token,priceBox,req,res) {
+const updateTokenPrice = async function updateApyAndTokenPrice(token) {
     getCoingeckoMarkets();
 try {
 
@@ -147,8 +147,6 @@ try {
         total += (token[i].mint_scale + token[i].borrow_scale) * token[i].current_price
     }
 
-    let APY = (priceBox * 365) / total
-    return APY
 }catch (e) {
     console.log( 'updateApyAndTokenPrice======'+e)
 }
@@ -176,6 +174,25 @@ async function updateCurrentPriceByName(current_price,name){
   let updParams = [ current_price,name ]
   await connection.update(updSql,updParams);
 };
+
+const updateTokenRate = async function updateTokenRate(token) {
+
+
+    const tronweb_show = require("../show/tronweb-show");
+
+    let pledgeRate;
+    let borrowRate;
+    let mintRate;
+    mintRate = await tronweb_show.getSupplyRatePerBlock(token);
+    borrowRate = await tronweb_show.getBorrowRatePerBlock(token);
+    pledgeRate = await getCloseFactorMantissa(token);
+
+    let updSql = "update token_info set mint_rate = ?,borrow_rate = ?,pledge_rate = ? where token_id = ?";
+    connection.update(updSql,[mintRate,borrowRate,pledgeRate,token.token_id])
+
+    console.log(mintRate,borrowRate,pledgeRate+"更新成功")
+}
+
 async function getCloseFactorMantissa (token) {
   const riskControllAddressSQL = "select key_value from dictionary_value where key_id = 'risk_controll_address'"
     let temp =await connection.select(riskControllAddressSQL);
@@ -209,7 +226,8 @@ module.exports = {
   getTransactionInfoByBlockTimestamp,
   getContractInfoConfig,
   getTokenInfo,
-    updateApyAndTokenPrice,
+    updateTokenPrice,
   updateTokenInfo,
+    updateTokenRate,
   getCoingeckoMarkets,
 }

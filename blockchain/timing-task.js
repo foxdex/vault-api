@@ -27,11 +27,11 @@ async function taskSynchronizationContractEventRecord() {
                   apiData.environment = el.key_value
               }
         });
-      await transactionin.updateApyAndTokenPrice(token,1);//从网上扒并更新token的currentPrice
+      await transactionin.updateTokenPrice(token);//从网上扒并更新token的currentPrice
       for (let i = 0 ;i< token.length;i++) {
-          
       await transactionin.getTransactionInfoByBlockTimestamp(apiData,token[i]);
       await transactionin.updateTokenInfo(token[i]);//从合约中取token的存借规模
+          await transactionin.updateTokenRate(token[i]);
       }
     } catch (error) {
         console.log('taskSynchronizationContractEventRecord===='+error);
