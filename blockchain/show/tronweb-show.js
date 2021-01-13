@@ -147,6 +147,28 @@ const getBpoolToken = async (token) => {
           console.log('getBpoolToken=====error==' + error);
         }
 }
+const getSupplyRatePerBlock = async (token) => { // Deposit block rate
+  return new Promise(function(resolve, reject) {
+    let that = this
+    var functionSelector = 'supplyRatePerBlock()';
+    var parameter = []
+    window.tronWeb.transactionBuilder.triggerConstantContract(item.ctokenAddress, functionSelector, {}, parameter).then((transaction) => {
+      let supplyRatePerBlock = new BigNumber(parseInt(transaction.constant_result[0], 16)).times(new BigNumber(28800)).times(365).div(new BigNumber(10).pow(item.cdecimals)).times(100).toFixed(2)
+      resolve(supplyRatePerBlock);
+    })
+  })
+}
+const getBorrowRatePerBlock = async (token) => { //  Borrowing block rate
+ return new Promise(function(resolve, reject) {
+    let that = this
+    var functionSelector = 'borrowRatePerBlock()';
+    var parameter = []
+    window.tronWeb.transactionBuilder.triggerConstantContract(item.ctokenAddress, functionSelector, {}, parameter).then((transaction) => {
+      let borrowRatePerBlock = new BigNumber(parseInt(transaction.constant_result[0], 16)).times(new BigNumber(28800)).times(365).div(new BigNumber(10).pow(token.cdecimals)).times(100).toFixed(2)
+      resolve(borrowRatePerBlock);
+    })
+  })
+}
 module.exports = {
     decimals,// Query precision
     getBalanceInPool,// Get the balance of a single currency in the pool
@@ -154,5 +176,7 @@ module.exports = {
     getTokenDenormalizedWeight,// Get the weight of token in the transaction pair
     getLpPerBlockToken,// Get the output quantity of each flow pool
     getCashPrior,
-    totalBorrows
+    totalBorrows,
+    getSupplyRatePerBlock,
+    getBorrowRatePerBlock
 };
