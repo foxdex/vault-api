@@ -4,13 +4,13 @@ const $http = require('../../api/http/config')
 const BigNumber = require('bignumber.js')
 const {getCashPrior , totalBorrows ,decimals} = require('../show/tronweb-show')
 // Synchronize all transaction info information of this block
-exports.getTransactionInfoByBlockTimestamp = async function getTransactionInfoByBlockTimestamp(config,ctoken){
+const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
   console.log('getTransactionInfoByBlockTimestamp' + JSON.stringify(config));
     console.log('getTransactionInfoByBlockTimestamp' + JSON.stringify(ctoken));
-    config = {
-    api_url:'https://api.shasta.trongrid.io',
-    contract_address:'TWenbBceEyffcNGatuCw5JBnNpsNzio2ET'
-   }
+  //   config = {
+  //   api_url:'https://api.shasta.trongrid.io',
+  //   contract_address:'TWenbBceEyffcNGatuCw5JBnNpsNzio2ET'
+  //  }
    try {
     let data = await $http.get(config.api_url+"/event/contract/"+ctoken.ctokenAddress);
     let hashList= data.map(el => {
@@ -83,7 +83,7 @@ Date.prototype.Format = function(fmt) {
 }
 
 
-exports.getContractInfoConfig = async function getContractInfoConfig() {
+const getContractInfoConfig = async function getContractInfoConfig() {
   
   // let selSql = "SELECT *  FROM contract_info"
   let selSql = "SELECT *  FROM dictionary_value"
@@ -97,7 +97,7 @@ exports.getContractInfoConfig = async function getContractInfoConfig() {
 
 
 
-exports.getTokenInfo = async function getTokenInfo() {
+const getTokenInfo = async ()=> {
   
   // let selSql = "SELECT *  FROM contract_info"
   let selSql = "SELECT *  FROM token_info"
@@ -109,7 +109,7 @@ exports.getTokenInfo = async function getTokenInfo() {
   }
 }
 
-exports.updateTokenInfo = async function testDemo(data) {
+ const updateTokenInfo =  async  (data) => {
   // let selSql = "SELECT *  FROM token_info"
   // let data =await connection.selectAll(selSql);
   // for (let index = 0; index < data.length; index++) {
@@ -127,47 +127,33 @@ exports.updateTokenInfo = async function testDemo(data) {
 
 
 
+  const  getCoingeckoMarkets = async  () =>{
+    let marketList = await $http.get('https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=300&page=1&sparkline=false');
+    let getTokenInfos = await getTokenInfo();
+          for (let index = 0; index < getTokenInfos.length; index++) {
+              let el = getTokenInfos[index];
+              for (let index1 = 0; index1 < marketList.length; index1++) {
+                let el1 = marketList[index1];
+                    if ( el.name.toLocaleUpperCase() == el1.symbol.toLocaleUpperCase()) {
+                       await updateCurrentPriceByName(el1.current_price,el.name.toLocaleUpperCase())
+                       break;
+                    }
+              }
+          }
+        
+}
 
+async function updateCurrentPriceByName(current_price,name){
+  let updSql = "update token_info set current_price=? where name=?";
+  let updParams = [ current_price,name ]
+  await connection.update(updSql,updParams);
+};
+getCoingeckoMarkets()
 
-//
-// exports.updateTokenScope = async function updateTokenScope(ctoken,decimals){
-//     const sqlSTR1 = "select method,parameter from event_trigger where ctoken_address = ?";
-//     let data1 = await connection.select(sqlSTR1,[ctoken]);
-//
-//
-//     let mintAmount = 0;
-//     let repayBorrowAmount = 0;
-//     let redeemAmount = 0;
-//     let borrowAmount = 0;
-//
-//
-//    for(let i = 0;i < data1.length;i++){
-//             if((data1[i].method == "mint(uint256 mintAmount)" || data1[i].method =="mint()") && data1[i].parameter != null){
-//                 let temp = data1[i].parameter;
-//                 let tmp = JSON.parse(temp);
-//                 mintAmount += Number(tmp[0]);
-//                 console.log(mintAmount);
-//             }else if ((data1[i].method == "repayBorrow(uint256 repayAmount)" || data1[i].method =="repayBorrow()") && data1[i].parameter != null){
-//                 let temp = data1[i].parameter;
-//                 let tmp = JSON.parse(temp);
-//                 repayBorrowAmount += Number(tmp[0]);
-//             } else if ((data1[i].method == "redeem(uint256 redeemTokens)" || data1[i].method == "redeem()") && data1[i].parameter != null){
-//                 let temp = data1[i].parameter;
-//                 let tmp = JSON.parse(temp);
-//                 redeemAmount += Number(tmp[0]);
-//             } else if ((data1[i].method == "borrow(uint256 borrowAmount)" || data1[i].method == "borrow()")&& data1[i].parameter != null){
-//                 let temp = data1[i].parameter;
-//                 let tmp = JSON.parse(temp);
-//                 borrowAmount += Number(tmp[0]);
-//             }
-//         }
-//          borrowAmount = borrowAmount / Math.pow(10,decimals);
-//          mintAmount = (mintAmount / Math.pow(10,decimals)) - (redeemAmount/Math.pow(10,18))   ;
-//         const sqlInsert = "update token_info set mint_scale = ?,borrow_scale = ? where ctokenAddress = ?"
-//         await connection.select(sqlInsert,[mintAmount,borrowAmount,ctoken]);
-//
-//    console.log("更新成功")
-// };
-
-
-
+module.exports = {
+  getTransactionInfoByBlockTimestamp,
+  getContractInfoConfig,
+  getTokenInfo,
+  updateTokenInfo,
+  getCoingeckoMarkets,
+}

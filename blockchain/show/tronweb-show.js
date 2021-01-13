@@ -5,7 +5,7 @@ const solidityNode = new HttpProvider("https://api.trongrid.io");
 const eventServer = new HttpProvider("https://api.trongrid.io");
 const privateKey = "3481E79956D4BD95F358AC96D151C976392FC4E3FC132F78A847906DE588C145";
 const tronWeb = new TronWeb(fullNode,solidityNode,eventServer,privateKey);
-
+const BigNumber = require('bignumber.js')
 // Initializing tronweb
 const initTronWeb = () => {
     return new Promise(function (resolve, reject) {
@@ -133,6 +133,20 @@ const getLpPerBlockToken = (contractAddress) =>{
     })
 }
 
+const getBpoolToken = async (token) => {
+        let comptrToken = 'TWrTgDeBGgRsJkYiM6ovMa96duCbJqyQWe';
+        // TYM1GyCB8cg5YC37WgkkBnVXn8qwd5hr9L   ctoken
+        try {
+          let Comptroller =await tronWeb.contract().at(comptrToken);
+          let oracle = await Comptroller.oracle().call()
+          let oracle1 = await tronWeb.contract().at(oracle);
+          let getTokenPrice = await oracle1.getUnderlyingPrice(token.ctokenAddress).call()
+          let price = new BigNumber(getTokenPrice._hex, 16).div(new BigNumber(10).pow(token.decimals)).toFixed()
+          return price
+        } catch (error) {
+          console.log('getBpoolToken=====error==' + error);
+        }
+}
 module.exports = {
     decimals,// Query precision
     getBalanceInPool,// Get the balance of a single currency in the pool
