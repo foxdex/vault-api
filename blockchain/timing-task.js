@@ -26,6 +26,8 @@ async function taskSynchronizationContractEventRecord() {
                   apiData.environment = el.key_value
               }
         });
+
+
       for (let i = 0 ;i< token.length;i++) {
       await transactionin.getTransactionInfoByBlockTimestamp(apiData,token[i]);
       await transactionin.updateTokenInfo(token[i]);

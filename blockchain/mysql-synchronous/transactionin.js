@@ -119,7 +119,7 @@ exports.updateTokenInfo = async function testDemo(data) {
      let decimal = el.decimals;
       let cashs=    new BigNumber(cash,16).div(new BigNumber(10).pow(decimal)).toFixed()
       let totalBorrowss=    new BigNumber(totalBorrow,16).div(new BigNumber(10).pow(decimal)).toFixed()
-      let sql = 'update token_info set mint_scale = ?,borrow_scale = ? where ctokenAddress = ?'
+      let sql = 'update token_info set mint_scale = ?,borrow_scale = ? ,abi = ? where ctokenAddress = ?'
       let pramas = [cashs ,totalBorrowss ,el.ctokenAddress]
        await connection.update(sql,pramas)
     console.log("tokenInfo更新成功");
@@ -127,7 +127,21 @@ exports.updateTokenInfo = async function testDemo(data) {
 
 
 
+exports.updateAPY = async function updateAPY(token,priceBox) {
+    let total = 0;
 
+    priceBox = 1;
+
+    for(let i = 0; i < token.length;i++){
+       total += (token[i].mint_scale + token[i].borrow_scale)*token[i].current_price
+    }
+
+    let APY = (priceBox * 365)/total
+
+    
+
+
+}
 
 //
 // exports.updateTokenScope = async function updateTokenScope(ctoken,decimals){
