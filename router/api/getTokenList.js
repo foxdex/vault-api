@@ -56,16 +56,14 @@ exports.Liquidation =  router.get("/Liquidation", async (req, res) => {
 
 exports.MarketSize =  router.get("/marketSize", async (req, res) => {
     // Define the SQL statement
-    // const totalScaleSql = "select SUM(mint_scale) as mintScale,SUM(borrow_scale) as borrowScale FROM token_info"
     const sqlStr = "SELECT name,address,img,balance,decimals,ctokenAddress,current_price,mint_scale,borrow_scale,cdecimals,abi from token_info ORDER BY sort_value DESC,token_id ASC";
 
-    // let totalScale = await connection.select(totalScaleSql)
     let  token = await connection.select(sqlStr);
-    // let {name}  = req.query;
     let totalMint = 0
     let totalBorrow = 0
     let total = 0;
     let Apy = 0;
+    let healthIndex = 0;
 
     for (let i = 0; i < token.length; i++) {
         let name = token[i].name;
@@ -73,41 +71,21 @@ exports.MarketSize =  router.get("/marketSize", async (req, res) => {
             token[i].current_price = 1;
         }
         total += (token[i].mint_scale + token[i].borrow_scale) * token[i].current_price
-        totalMint += token[i].mint_scale;
-        totalBorrow += token[i].borrow_scale;
+        totalMint += token[i].mint_scale * token[i].current_price;
+        totalBorrow += token[i].borrow_scale * token[i].current_price;
     }
        Apy = (1 * 365) / total
 
 
-
-    // let ownerMintScale = 0;
-    // let ownerBorrowScale = 0;
-
-//
-//     if(name){
-//         const queryOwnerMintBorrowScope = "select mint_scale,borrow_scale,mintBorrowCount from user_info where owber_address = ?";
-//         let OwnerMintBorrowScope = await connection.select(queryOwnerMintBorrowScope,[name]);
-//
-// if (!OwnerMintBorrowScope[0]){//用户第一次登录,count = -1,未拉取事件并更新到user_info表
-//     OwnerMintBorrowScope[0] = new UserInfo();
-// }
-//
-//         let array =  updateOwnerMintBorrowScope(req,res,name,OwnerMintBorrowScope[0].mintBorrowCount);
-//         ownerMintScale = OwnerMintBorrowScope[0].mint_scale;
-//         ownerBorrowScale = OwnerMintBorrowScope[0].borrow_scale;
-//     }
-
-
+     healthIndex = await HealthIndex(req,res,"TRuftsNUWzegiPjzRqfsQ3NwNsvwAnZKD7");
 
     let data ={
     "code":0,
     "data":{
       "market_deposit":totalMint,
       "market_withdrawals":totalBorrow,
-        // "ownerMintScale":ownerMintScale,
-        // "ownerBorrowScale":ownerBorrowScale,
         "apy":Apy,
-      "Pledgerate":"400"
+       "healthIndex":healthIndex,
     }
   }
   res.send({
@@ -129,74 +107,35 @@ module.exports = router;
 
 
 // 个人存取规模
-// async function updateOwnerMintBorrowScope(req,res,ownerAddress,count) {
-//
-//
-//     let ownerMintAmount = 0;
-//     let ownerBorrowAmount = 0;
-//
-//     const countStr = "SELECT count(*) as mintBorrowCount FROM event_trigger where method = \"mint(uint256 mintAmount)\" or method = \"borrow(uint256 borrowAmount)\" and owber_address = ?";
-//     let queryCount = await connection.select(countStr,[ownerAddress]);
-//
-//     try {
-//
-//         //如果user_info没有该用户，拉取事件并加入
-//
-//
-//         if(count != queryCount[0].mintBorrowCount) {
-//
-//         //查询ctokenInfo
-//         const ctokenListSTR = "select contract_address from contract_info"
-//         let ctokenList = await connection.select(ctokenListSTR);
-//
-//         for (let j = 0; j < ctokenList.length; j++) {
-//
-//
-//             const sqlSTR1 = "select method,parameter from event_trigger where owber_address = ? and ctoken_address = ? and ( method = \"mint(uint256 mintAmount)\" or method = \"borrow(uint256 borrowAmount)\" )";
-//             let data1 = await connection.select(sqlSTR1, [ownerAddress, ctokenList[j].contract_address]);
-//
-//             const decimalSTR = "select decimals from token_info where ctokenAddress = ?"
-//             let decimalArray = await connection.select(decimalSTR, [ctokenList[j].contract_address])
-//
-//             if (data1) {
-//
-//                 let ownerMintAmountTemp = 0;
-//                 let ownerBorrowAmountTemp = 0;
-//
-//
-//                 for (let i = 0; i < data1.length; i++) {
-//                     if (data1[i].method == "mint(uint256 mintAmount)") {
-//                         let temp = data1[i].parameter;
-//                         let tmp = JSON.parse(temp);
-//                         ownerMintAmountTemp += Number(tmp[0]);
-//                     } else if (data1[i].method == "borrow(uint256 borrowAmount)") {
-//                         let temp = data1[i].parameter;
-//                         let tmp = JSON.parse(temp);
-//                         ownerBorrowAmountTemp += Number(tmp[0]);
-//                     }
-//                 }
-//                 ownerMintAmount += ownerMintAmountTemp / Math.pow(10, decimalArray[0].decimals);
-//                 ownerBorrowAmount += ownerBorrowAmountTemp / Math.pow(10, decimalArray[0].decimals);
-//                 }
-//             }
-//         if(count == -1){//-1时插入新用户
-//            const insertUserInfo = "Insert into user_info values (?,?,?,?)"
-//            await connection.insert(insertUserInfo,[ownerAddress,ownerMintAmount,ownerBorrowAmount,queryCount[0].mintBorrowCount])
-//
-//         }else {//-1或0时
-//             const updateUserInfo = "UPDATE user_info SET mint_scale = ?,borrow_scale = ?,mintBorrowCount = ? WHERE owber_address = ?"
-//             await connection.select(updateUserInfo, [ownerMintAmount, ownerBorrowAmount, queryCount[0].mintBorrowCount, ownerAddress]);
-//             console.log("用户信息更新成功")
-//         }
-//         }
-//     }catch (e) {
-//         console.log(e);
-//     }
-// }
+async function HealthIndex(req,res,ownerAddress) {
+    let healthIndex = 0;
+    let ownerEventList
+    let ownerMintAmount = 0;
+    let ownerBorrowAmount = 0;
+    try {
+    const eventTrriggerOwnerSQL = "select e.method,e.parameter,t.current_price FROM  event_trigger as e  RIGHT JOIN token_info as t on e.ctoken_address = t.ctokenAddress WHERE e.owber_address = ? and ( e.method = 'mint(uint256 mintAmount)' or e.method = 'borrow(uint256 borrowAmount)' or e.method = 'mint()' )"
+    ownerEventList = await connection.select(eventTrriggerOwnerSQL,[ownerAddress]);
 
-// class UserInfo {
-//     constructor(){
-//         this.mintBorrowCount = -1;
-//     }
-//     mintBorrowCount;
-// }
+
+
+        for (let i = 0; i < ownerEventList.length; i++) {
+
+                    if (ownerEventList[i].method == "mint(uint256 mintAmount)" || ownerEventList[i].method == "mint()") {
+                        let temp = ownerEventList[i].parameter;
+                        let tmp = JSON.parse(temp);
+                        ownerMintAmount += (Number(tmp[0]) * ownerEventList[i].current_price);
+                    } else if (ownerEventList[i].method == "borrow(uint256 borrowAmount)") {
+                        let temp = ownerEventList[i].parameter;
+                        let tmp = JSON.parse(temp);
+                        ownerBorrowAmount += (Number(tmp[0]) * ownerEventList[i].current_price)
+                    }
+                }
+        healthIndex = (ownerMintAmount/ownerBorrowAmount)
+
+        return healthIndex;
+
+
+                }catch (e) {
+                console.log("HealthIndex ========" + e)
+    }
+}
