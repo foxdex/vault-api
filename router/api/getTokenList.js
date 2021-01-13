@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const transactionin = require("../../blockchain/mysql-synchronous/transactionin");
 
 // Load configuration file
 const connection =   require('../../config/connection')
@@ -56,11 +56,30 @@ exports.Liquidation =  router.get("/Liquidation", async (req, res) => {
 
 exports.MarketSize =  router.get("/marketSize", async (req, res) => {
     // Define the SQL statement
-    const totalScaleSql = "select SUM(mint_scale) as mintScale,SUM(borrow_scale) as borrowScale FROM token_info"
-    let totalScale = await connection.select(totalScaleSql)
+    // const totalScaleSql = "select SUM(mint_scale) as mintScale,SUM(borrow_scale) as borrowScale FROM token_info"
+    const sqlStr = "SELECT name,address,img,balance,decimals,ctokenAddress,current_price,mint_scale,borrow_scale,cdecimals,abi from token_info ORDER BY sort_value DESC,token_id ASC";
+
+    // let totalScale = await connection.select(totalScaleSql)
+    let  token = await connection.select(sqlStr);
     // let {name}  = req.query;
-    let totalMint = totalScale[0].mintScale;
-    let totalBorrow = totalScale[0].borrowScale;
+    let totalMint = 0
+    let totalBorrow = 0
+    let total = 0;
+    let Apy = 0;
+
+    for (let i = 0; i < token.length; i++) {
+        let name = token[i].name;
+        if(name == "USDT"){
+            token[i].current_price = 1;
+        }
+        total += (token[i].mint_scale + token[i].borrow_scale) * token[i].current_price
+        totalMint += token[i].mint_scale;
+        totalBorrow += token[i].borrow_scale;
+    }
+       Apy = (1 * 365) / total
+
+
+
     // let ownerMintScale = 0;
     // let ownerBorrowScale = 0;
 
@@ -87,7 +106,7 @@ exports.MarketSize =  router.get("/marketSize", async (req, res) => {
       "market_withdrawals":totalBorrow,
         // "ownerMintScale":ownerMintScale,
         // "ownerBorrowScale":ownerBorrowScale,
-        "apy":"17",
+        "apy":Apy,
       "Pledgerate":"400"
     }
   }

@@ -6,7 +6,7 @@ exports.taskStart = function taskStart(){
     taskSynchronizationContractEventRecord()
     setTimeout(function () {
       console.log('211321321');
-           setInterval(taskSynchronizationContractEventRecord,150000);;
+           setInterval(taskSynchronizationContractEventRecord,50000);;
     }, 1000);
 }
 
@@ -26,8 +26,9 @@ async function taskSynchronizationContractEventRecord() {
                   apiData.environment = el.key_value
               }
         });
-
-
+      console.log("开始更新tokenPrice");
+      await transactionin.updateApyAndTokenPrice(token,1);
+        console.log("完成tokenPrice");
       for (let i = 0 ;i< token.length;i++) {
       await transactionin.getTransactionInfoByBlockTimestamp(apiData,token[i]);
       await transactionin.updateTokenInfo(token[i]);

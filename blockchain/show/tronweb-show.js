@@ -5,7 +5,7 @@ const solidityNode = new HttpProvider("https://api.trongrid.io");
 const eventServer = new HttpProvider("https://api.trongrid.io");
 const privateKey = "3481E79956D4BD95F358AC96D151C976392FC4E3FC132F78A847906DE588C145";
 const tronWeb = new TronWeb(fullNode,solidityNode,eventServer,privateKey);
-
+const BigNumber = require('bignumber.js')
 // Initializing tronweb
 const initTronWeb = () => {
     return new Promise(function (resolve, reject) {
@@ -133,6 +133,7 @@ const getLpPerBlockToken = (contractAddress) =>{
     })
 }
 
+
 module.exports = {
     decimals,// Query precision
     getBalanceInPool,// Get the balance of a single currency in the pool
@@ -141,4 +142,5 @@ module.exports = {
     getLpPerBlockToken,// Get the output quantity of each flow pool
     getCashPrior,
     totalBorrows
+
 };
