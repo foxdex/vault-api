@@ -66,10 +66,10 @@ exports.MarketSize =  router.get("/marketSize", async (req, res) => {
     let healthIndex = 0;
 
     for (let i = 0; i < token.length; i++) {
-        let name = token[i].name;
-        if(name == "USDT"){
-            token[i].current_price = 1;
-        }
+        // let name = token[i].name;
+        // if(name == "USDT"){
+        //     token[i].current_price = 1;
+        // }
         total += (token[i].mint_scale + token[i].borrow_scale) * token[i].current_price
         totalMint += token[i].mint_scale * token[i].current_price;
         totalBorrow += token[i].borrow_scale * token[i].current_price;
