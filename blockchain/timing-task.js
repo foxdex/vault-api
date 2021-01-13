@@ -13,6 +13,7 @@ exports.taskStart = function taskStart(){
 async function taskSynchronizationContractEventRecord() {
   console.log('taskSynchronizationContractEventRecord');
     const transactionin = require("./mysql-synchronous/transactionin");
+    const tronwebShow = require("./show/tronweb-show");
     try {
       let config =  await transactionin.getContractInfoConfig()
       let token  =  await transactionin.getTokenInfo()
@@ -26,12 +27,11 @@ async function taskSynchronizationContractEventRecord() {
                   apiData.environment = el.key_value
               }
         });
-      console.log("开始更新tokenPrice");
-      await transactionin.updateApyAndTokenPrice(token,1);
-        console.log("完成tokenPrice");
+      await transactionin.updateApyAndTokenPrice(token,1);//从网上扒并更新token的currentPrice
       for (let i = 0 ;i< token.length;i++) {
+          
       await transactionin.getTransactionInfoByBlockTimestamp(apiData,token[i]);
-      await transactionin.updateTokenInfo(token[i]);
+      await transactionin.updateTokenInfo(token[i]);//从合约中取token的存借规模
       }
     } catch (error) {
         console.log('taskSynchronizationContractEventRecord===='+error);
