@@ -5,7 +5,7 @@ const transactionin = require("../../blockchain/mysql-synchronous/transactionin"
 // Load configuration file
 const connection =   require('../../config/connection')
 const url = require('url');
-
+const {getCompRate} = require('../../blockchain/show/tronweb-show')
 // getTokenList
  exports.getTokenList =  router.get("/getTokenList", async (req, res) => {
     // Define the SQL statement
@@ -65,14 +65,16 @@ try {
     let Apy = 0;
     let healthIndex = 0;
     let {name} = req.query;
-
-
+    
+    let tronweb = await getCompRate();
+    let rate = tronweb * 60 *24 *365 * 1;
+    
     for (let i = 0; i < token.length; i++) {
         total += (token[i].mint_scale + token[i].borrow_scale) * token[i].current_price
         totalMint += token[i].mint_scale * token[i].current_price;
         totalBorrow += token[i].borrow_scale * token[i].current_price;
     }
-    Apy = (1 * 365) / total
+    Apy = ((rate * 365) / total).toFixed(2) *1
 
 
     healthIndex = await HealthIndex(req, res, name);

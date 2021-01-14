@@ -182,7 +182,20 @@ const getCloseFactorMantissa=   async (token)=> {
         console.log('getBpoolToken=====error==' + error);
     }
 }
-
+const getCompRate = async () => {
+  const riskControllAddressSQL = "select key_value from dictionary_value where key_id = 'risk_controll_address'"
+  let temp =await connection.select(riskControllAddressSQL);
+  let comptrToken = temp[0].key_value;//数据库里查
+  // TYM1GyCB8cg5YC37WgkkBnVXn8qwd5hr9L   ctoken
+  try {
+      let Comptroller =await tronWeb.contract().at(comptrToken);
+        let str = await Comptroller.compRate().call();
+        let str1 = new BigNumber(str).div(new BigNumber(10).pow(18)).toFixed()
+      return str1
+  } catch (error) {
+      console.log('getBpoolToken=====error==' + error);
+  }
+}
 module.exports = {
     decimals,// Query precision
     getBalanceInPool,// Get the balance of a single currency in the pool
@@ -194,5 +207,6 @@ module.exports = {
     getSupplyRatePerBlock,
     getBorrowRatePerBlock,
     getCloseFactorMantissa,
-    getBpoolToken
+    getBpoolToken,
+    getCompRate
 };
