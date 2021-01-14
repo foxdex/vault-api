@@ -134,12 +134,12 @@ async function HealthIndex(req,res,ownerAddress) {
                         ownerBorrowAmount += (Number(tmp[0]) * ownerEventList[i].current_price)
                     }
                 }
-        if ((ownerMintAmount == 0 && ownerBorrowAmount == 0) && (ownerBorrowAmount == 0 && ownerMintAmount != 0)) {
+        if ((ownerMintAmount == 0 && ownerBorrowAmount == 0) && (ownerBorrowAmount != 0 && ownerMintAmount == 0)) {
             healthIndex = 0
-        }else if (ownerBorrowAmount != 0 && ownerMintAmount == 0) {
+        }else if (ownerBorrowAmount == 0 && ownerMintAmount != 0) {
             healthIndex = 1
         }else {
-            healthIndex = ownerBorrowAmount/(ownerMintAmount + ownerBorrowAmount)
+            healthIndex = ownerMintAmount/(ownerMintAmount + ownerBorrowAmount)
         }
         return healthIndex;
 
