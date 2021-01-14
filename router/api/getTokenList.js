@@ -74,7 +74,7 @@ try {
         totalMint += token[i].mint_scale * token[i].current_price;
         totalBorrow += token[i].borrow_scale * token[i].current_price;
     }
-    Apy = ((rate * 365) / total).toFixed(2) *1
+    Apy = (rate  / total).toFixed(2) *1
 
 
     healthIndex = await HealthIndex(req, res, name);
