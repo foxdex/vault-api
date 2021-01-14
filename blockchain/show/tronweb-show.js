@@ -176,7 +176,7 @@ const getCloseFactorMantissa=   async (token)=> {
         let oracle = await Comptroller.oracle().call()
         let oracle1 = await tronWeb.contract().at(oracle);
         let getTokenPrice = await oracle1.getUnderlyingPrice(token.ctokenAddress).call()
-        let price = new BigNumber(getTokenPrice._hex, 16).div(new BigNumber(10).pow(token.decimals)).toFixed()
+        let price = new BigNumber(getTokenPrice._hex, 16).div(new BigNumber(10).pow(token.cdecimals)).toFixed()
         return price
     } catch (error) {
         console.log('getBpoolToken=====error==' + error);
