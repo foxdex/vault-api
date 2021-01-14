@@ -52,6 +52,7 @@ exports.Liquidation =  router.get("/Liquidation", async (req, res) => {
        ]
 
   }
+  res.send(data)
 });
 
 exports.MarketSize =  router.get("/marketSize", async (req, res) => {
