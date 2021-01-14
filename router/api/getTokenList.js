@@ -74,7 +74,7 @@ try {
         totalMint += token[i].mint_scale * token[i].current_price;
         totalBorrow += token[i].borrow_scale * token[i].current_price;
     }
-    total = totalMint + totalBorrow;
+    total = totalMint + totalBorrow
     Apy = (rate  / total).toFixed(2) *1
 
 
