@@ -190,7 +190,7 @@ const getCompRate = async () => {
   try {
       let Comptroller =await tronWeb.contract().at(comptrToken);
         let str = await Comptroller.compRate().call();
-        let str1 = new BigNumber(str).div(new BigNumber(10).pow(18)).toFixed()
+        let str1 = new BigNumber(str._hex,16).div(new BigNumber(10).pow(18)).toFixed()
       return str1
   } catch (error) {
       console.log('getBpoolToken=====error==' + error);
