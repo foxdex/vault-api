@@ -158,7 +158,7 @@ const getBorrowRatePerBlock = async (token) => { //  Borrowing block rate
 }
 
 const getCloseFactorMantissa=   async (token)=> {
-  const riskControllAddressSQL = "select key_value from dictionary_value where key_id = 'risk_controll_address'"
+  const riskControllAddressSQL = "select key_value from contract_dictionary where key_id = 'risk_controll_address'"
     let temp =await connection.select(riskControllAddressSQL);
     let arry = await tronWeb.contract().at(temp[0].key_value);
     let arr1 = await arry.markets(token.ctokenAddress).call() 
@@ -167,7 +167,7 @@ const getCloseFactorMantissa=   async (token)=> {
 
 }
  const getBpoolToken =  async  (token)=> {
-    const riskControllAddressSQL = "select key_value from dictionary_value where key_id = 'risk_controll_address'"
+    const riskControllAddressSQL = "select key_value from contract_dictionary where key_id = 'risk_controll_address'"
     let temp =await connection.select(riskControllAddressSQL);
     let comptrToken = temp[0].key_value;//数据库里查
     // TYM1GyCB8cg5YC37WgkkBnVXn8qwd5hr9L   ctoken
@@ -183,7 +183,7 @@ const getCloseFactorMantissa=   async (token)=> {
     }
 }
 const getCompRate = async () => {
-  const riskControllAddressSQL = "select key_value from dictionary_value where key_id = 'risk_controll_address'"
+  const riskControllAddressSQL = "select key_value from contract_dictionary where key_id = 'risk_controll_address'"
   let temp =await connection.select(riskControllAddressSQL);
   let comptrToken = temp[0].key_value;//数据库里查
   // TYM1GyCB8cg5YC37WgkkBnVXn8qwd5hr9L   ctoken
