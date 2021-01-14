@@ -57,40 +57,44 @@ exports.Liquidation =  router.get("/Liquidation", async (req, res) => {
 exports.MarketSize =  router.get("/marketSize", async (req, res) => {
     // Define the SQL statement
     const sqlStr = "SELECT name,address,img,balance,decimals,ctokenAddress,current_price,mint_scale,borrow_scale,cdecimals,abi from token_info ORDER BY sort_value DESC,token_id ASC";
-
-    let  token = await connection.select(sqlStr);
+try {
+    let token = await connection.select(sqlStr);
     let totalMint = 0
     let totalBorrow = 0
     let total = 0;
     let Apy = 0;
     let healthIndex = 0;
+    let {name} = req.query;
+
 
     for (let i = 0; i < token.length; i++) {
-        // let name = token[i].name;
-        // if(name == "USDT"){
-        //     token[i].current_price = 1;
-        // }
         total += (token[i].mint_scale + token[i].borrow_scale) * token[i].current_price
         totalMint += token[i].mint_scale * token[i].current_price;
         totalBorrow += token[i].borrow_scale * token[i].current_price;
     }
-       Apy = (1 * 365) / total
+    Apy = (1 * 365) / total
 
 
-     healthIndex = await HealthIndex(req,res,"TRuftsNUWzegiPjzRqfsQ3NwNsvwAnZKD7");
-
-    let data ={
-    "code":0,
-    "data":{
-      "market_deposit":totalMint,
-      "market_withdrawals":totalBorrow,
-        "apy":Apy,
-       "healthIndex":healthIndex,
+    healthIndex = await HealthIndex(req, res, name);
+    if (healthIndex == null){
+        healthIndex = 0;
     }
-  }
-  res.send({
-    data
-  })
+
+    let data = {
+        "code": 0,
+        "data": {
+            "market_deposit": totalMint,
+            "market_withdrawals": totalBorrow,
+            "apy": Apy,
+            "healthIndex": healthIndex,
+        }
+    }
+    res.send({
+        code: 0, data: data
+    })
+}catch (e) {
+    res.json({code: 404, data: "For failure"});
+}
 });
 
 
@@ -130,8 +134,11 @@ async function HealthIndex(req,res,ownerAddress) {
                         ownerBorrowAmount += (Number(tmp[0]) * ownerEventList[i].current_price)
                     }
                 }
-        healthIndex = (ownerMintAmount/ownerBorrowAmount)
-
+        if (ownerMintAmount != 0) {
+            healthIndex = (ownerBorrowAmount / ownerMintAmount)
+        }else {
+            healthIndex = 0;
+        }
         return healthIndex;
 
 
