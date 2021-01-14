@@ -71,10 +71,10 @@ try {
     let rate = tronweb * 60 *24 *365 * 1;
     
     for (let i = 0; i < token.length; i++) {
-        total += (token[i].mint_scale + token[i].borrow_scale) * token[i].current_price
         totalMint += token[i].mint_scale * token[i].current_price;
         totalBorrow += token[i].borrow_scale * token[i].current_price;
     }
+    total = totalMint + totalBorrow;
     Apy = (rate  / total).toFixed(2) *1
 
 

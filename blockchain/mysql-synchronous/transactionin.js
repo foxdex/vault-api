@@ -136,10 +136,7 @@ try {
             token[i].current_price = await getBpoolToken(token[i]);
             let result = await connection.update(updatePrice, [token[i].current_price, token[i].token_id])
         }
-         let name = token[i].name;
-        if(name == "USDT"){
-            token[i].current_price = 1;
-        }
+
         total += (token[i].mint_scale + token[i].borrow_scale) * token[i].current_price
     }
 
