@@ -196,6 +196,21 @@ const getCompRate = async () => {
       console.log('getBpoolToken=====error==' + error);
   }
 }
+
+const getAccount =  async  (token)=> {
+  const riskControllAddressSQL = "select key_value from contract_dictionary where key_id = 'risk_controll_address'"
+  let temp =await connection.select(riskControllAddressSQL);
+  let comptrToken = temp[0].key_value;//数据库里查
+  // TYM1GyCB8cg5YC37WgkkBnVXn8qwd5hr9L   ctoken
+  try {
+      let Comptroller =await tronWeb.contract().at(comptrToken);
+      let balances = await Comptroller.getAccountLiquidity('TSZJSaYq4q2oNaVUwgBj5ywCA1QxAMVw5x').call()
+      let balance1 = new BigNumber(balances[2]._hex, 16).toFixed();
+      return balance1
+  } catch (error) {
+      console.log('getBpoolToken=====error==' + error);
+  }
+}
 module.exports = {
     decimals,// Query precision
     getBalanceInPool,// Get the balance of a single currency in the pool
