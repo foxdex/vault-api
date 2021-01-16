@@ -2,7 +2,7 @@
 const connection = require("../../config/connection");
 const $http = require('../../api/http/config')
 const BigNumber = require('bignumber.js')
-const {getCashPrior , totalBorrows ,decimals ,getBpoolToken ,getSupplyRatePerBlock ,getBorrowRatePerBlock,getCloseFactorMantissa} = require('../show/tronweb-show')
+const {getCashPrior , totalBorrows ,decimals ,getBpoolToken ,getSupplyRatePerBlock ,getBorrowRatePerBlock,getCloseFactorMantissa,getAccount} = require('../show/tronweb-show')
 // Synchronize all transaction info information of this block
 const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
   console.log('getTransactionInfoByBlockTimestamp' + JSON.stringify(config));
@@ -182,6 +182,22 @@ const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
      }
 
 
+     const updateArrayLiquidation = async function updateArrayLiquidation() {
+         try {
+             const selectUserInfo = "select  u.user_address ,t.*   FROM user_info as u LEFT JOIN token_info as t  on u.ctoken_address = t.ctokenAddress WHERE (u.mint_scale/2) < u.borrow_scale"
+             var array = await connection.select(selectUserInfo);
+             var arrayLiquidation;
+
+             arrayLiquidation = await getAccount(array)
+
+            let json = Json.stringify(array[1])
+
+             const updateLiquidation = "update dictionary_value set last_liquidation = ?"
+             await connection.update(updateLiquidation,[json])
+         } catch (e) {
+          console.log("updateUserInfoJson ======" + e )
+         }
+     }
 
 
      const updateUserInfo = async function updateUserInfo() {
@@ -226,6 +242,10 @@ try {
 
 
 
+
+
+
+
 module.exports = {
     getTransactionInfoByBlockTimestamp,
     getContractInfoConfig,
@@ -234,5 +254,6 @@ module.exports = {
     updateTokenInfo,
     updateTokenRate,
     updateUserInfo,
-    getCoingeckoMarkets,
+    updateArrayLiquidation,
+    getCoingeckoMarkets
 }

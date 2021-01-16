@@ -28,18 +28,14 @@ const {getAccount} = require('../../blockchain/show/tronweb-show')
 exports.Liquidation =  router.get("/Liquidation", async (req, res) => {
   // Define the SQL statement
     try {
-        const selectUserInfo = "select  u.user_address ,t.*   FROM user_info as u LEFT JOIN token_info as t  on u.ctoken_address = t.ctokenAddress WHERE (u.mint_scale/2) < u.borrow_scale"
-        var array = await connection.select(selectUserInfo);
-        var arrayLiquidation ;
+        const selectLiquidationJson = "select key_value from dictionary_value where key_id = 'last_liquidation'"
+       var array = await connection.select(selectLiquidationJson)
+    }catch(e){
 
-        arrayLiquidation = await getAccount(array)
-    }catch (e) {
-        console.log("Liquidation ==========" + e)
     }
-
     let data ={
     "code":0,
-    "data":array[1]
+    "data":array[0].key_value
   }
   res.send(data)
 });
@@ -107,38 +103,21 @@ module.exports = router;
 
 // 个人存取规模
 async function HealthIndex(req,res,ownerAddress) {
-    let healthIndex = 0;
-    let ownerEventList
-    let ownerMintAmount = 0;
-    let ownerBorrowAmount = 0;
-    try {
-    const eventTrriggerOwnerSQL = "select e.method,e.parameter,t.current_price FROM  event_trigger as e  RIGHT JOIN token_info as t on e.ctoken_address = t.ctokenAddress WHERE e.owber_address = ? and ( e.method = 'mint(uint256 mintAmount)' or e.method = 'borrow(uint256 borrowAmount)' or e.method = 'mint()' )"
-    ownerEventList = await connection.select(eventTrriggerOwnerSQL,[ownerAddress]);
+   try{
+     const selectUserInfo ="select   SUM((u.mint_scale * t.current_price)) as mint,SUM((u.borrow_scale * t.current_price)) as borrow  from user_info as u left JOIN token_info as t on u.ctoken_address = t.ctokenAddress " +
+         "WHERE u.user_address = ?"
 
 
-
-        for (let i = 0; i < ownerEventList.length; i++) {
-
-                    if (ownerEventList[i].method == "mint(uint256 mintAmount)" || ownerEventList[i].method == "mint()") {
-                        let temp = ownerEventList[i].parameter;
-                        let tmp = JSON.parse(temp);
-                        ownerMintAmount += (Number(tmp[0]) * ownerEventList[i].current_price);
-                    } else if (ownerEventList[i].method == "borrow(uint256 borrowAmount)") {
-                        let temp = ownerEventList[i].parameter;
-                        let tmp = JSON.parse(temp);
-                        ownerBorrowAmount += (Number(tmp[0]) * ownerEventList[i].current_price)
-                    }
-                }
-        if  (ownerBorrowAmount != 0 && ownerMintAmount == 0) {
-            healthIndex = 0
-        }else if ((ownerBorrowAmount == 0 && ownerMintAmount != 0) || (ownerMintAmount == 0 && ownerBorrowAmount == 0)) {
-            healthIndex = 1
-        }else {
-            healthIndex = ownerMintAmount/(ownerMintAmount + ownerBorrowAmount)
-        }
-        return healthIndex;
-
-
+      let array = await connection.select(selectUserInfo,[ownerAddress])
+       let index;
+       if ((array[0].mint == 0 && array[0].borrow == 0) || (array[0].mint == null && array[0].borrow == null)){
+           index = 1;
+           return index
+       }
+       else {
+           index = array[0].mint / (array[0].mint + array[0].borrow)
+       }
+       return index
                 }catch (e) {
                 console.log("HealthIndex ========" + e)
     }

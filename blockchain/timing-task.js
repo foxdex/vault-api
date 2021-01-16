@@ -28,6 +28,7 @@ async function taskSynchronizationContractEventRecord() {;
               }
         });
       await transactionin.updateUserInfo();
+      // await transactionin.updateArrayLiquidation();
       await transactionin.updateTokenPrice(token);//从网上扒并更新token的currentPrice
       for (let i = 0 ;i< token.length;i++) {
       await transactionin.getTransactionInfoByBlockTimestamp(apiData,token[i]);
