@@ -5,12 +5,12 @@ exports.taskStart = function taskStart(){
     console.log(`Tasks start loading`);
     taskSynchronizationContractEventRecord()
     setTimeout(function () {
-      console.log('211321321');
-           setInterval(taskSynchronizationContractEventRecord,50000);;
+           setInterval(taskSynchronizationContractEventRecord,100000);;
+
     }, 1000);
 }
 
-async function taskSynchronizationContractEventRecord() {
+async function taskSynchronizationContractEventRecord() {;
   console.log('taskSynchronizationContractEventRecord');
     const transactionin = require("./mysql-synchronous/transactionin");
     const tronwebShow = require("./show/tronweb-show");
@@ -27,6 +27,7 @@ async function taskSynchronizationContractEventRecord() {
                   apiData.environment = el.key_value
               }
         });
+      await transactionin.updateUserInfo();
       await transactionin.updateTokenPrice(token);//从网上扒并更新token的currentPrice
       for (let i = 0 ;i< token.length;i++) {
       await transactionin.getTransactionInfoByBlockTimestamp(apiData,token[i]);

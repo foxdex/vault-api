@@ -37,7 +37,6 @@ exports.select = function select(selSql, selSqlParams) {
     conn.connect();
 
     return new Promise(function (resolve, reject) {
-
         conn.query(selSql, selSqlParams, function (err, result) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message);

@@ -6,6 +6,7 @@ const transactionin = require("../../blockchain/mysql-synchronous/transactionin"
 const connection =   require('../../config/connection')
 const url = require('url');
 const {getCompRate} = require('../../blockchain/show/tronweb-show')
+const {getAccount} = require('../../blockchain/show/tronweb-show')
 // getTokenList
  exports.getTokenList =  router.get("/getTokenList", async (req, res) => {
     // Define the SQL statement
@@ -26,31 +27,19 @@ const {getCompRate} = require('../../blockchain/show/tronweb-show')
 
 exports.Liquidation =  router.get("/Liquidation", async (req, res) => {
   // Define the SQL statement
-  let data ={
+    try {
+        const selectUserInfo = "select  u.user_address ,t.*   FROM user_info as u LEFT JOIN token_info as t  on u.ctoken_address = t.ctokenAddress WHERE (u.mint_scale/2) < u.borrow_scale"
+        let array = await connection.select(selectUserInfo);
+        var arrayLiquidation ;
+
+        arrayLiquidation = await getAccount(array)
+    }catch (e) {
+        console.log("Liquidation ==========" + e)
+    }
+
+    let data ={
     "code":0,
-    "data":
-       [
-          {
-            "address": "werhrerj…aefherb",
-            "addrs": "75.87",
-            "reward": "232.32232",
-            "number": "7.56"
-          },
-          {
-            "address": "werhrerj…aefherb",
-            "addrs": "75.87",
-            "reward": "232.32232",
-            "number": "7.56"
-          },
-          {
-            "address": "werhrerj…aefherb",
-            "addrs": "75.87",
-            "reward": "232.32232",
-            "number": "7.56"
-          }
-
-       ]
-
+    "data":arrayLiquidation
   }
   res.send(data)
 });
@@ -75,8 +64,11 @@ try {
         totalBorrow += token[i].borrow_scale * token[i].current_price;
     }
     total = totalMint + totalBorrow
-    Apy = (rate  / total).toFixed(2) *1
-
+    if (total == 0){
+        Apy = 0;
+    } else {
+        Apy = (rate / total).toFixed(2) * 1
+    }
 
     healthIndex = await HealthIndex(req, res, name);
     if (healthIndex == null){

@@ -197,19 +197,26 @@ const getCompRate = async () => {
   }
 }
 
-const getAccount =  async  (token)=> {
+const getAccount =  async  (array)=> {
   const riskControllAddressSQL = "select key_value from contract_dictionary where key_id = 'risk_controll_address'"
   let temp =await connection.select(riskControllAddressSQL);
   let comptrToken = temp[0].key_value;//数据库里查
   // TYM1GyCB8cg5YC37WgkkBnVXn8qwd5hr9L   ctoken
-  try {
-      let Comptroller =await tronWeb.contract().at(comptrToken);
-      let balances = await Comptroller.getAccountLiquidity('TSZJSaYq4q2oNaVUwgBj5ywCA1QxAMVw5x').call()
-      let balance1 = new BigNumber(balances[2]._hex, 16).toFixed();
-      return balance1
-  } catch (error) {
-      console.log('getBpoolToken=====error==' + error);
-  }
+    let arrayResult = new Array();
+    for(let i = 0; i < array.length ; i++) {
+
+        try {
+            let Comptroller = await tronWeb.contract().at(comptrToken);
+            let balances = await Comptroller.getAccountLiquidity(array[i].user_address).call()
+            let balance1 = new BigNumber(balances[2]._hex, 16).toFixed();
+            if (balance1 < 0){
+                arrayResult.push(array[i])
+            }
+        } catch (error) {
+            console.log('getBpoolToken=====error==' + error);
+        }
+    }
+    return arrayResult;
 }
 module.exports = {
     decimals,// Query precision
@@ -223,5 +230,6 @@ module.exports = {
     getBorrowRatePerBlock,
     getCloseFactorMantissa,
     getBpoolToken,
-    getCompRate
+    getCompRate,
+    getAccount
 };
