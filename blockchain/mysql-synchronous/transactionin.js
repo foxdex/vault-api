@@ -190,7 +190,8 @@ const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
 
              arrayLiquidation = await getAccount(array)
 
-            let json = Json.stringify(array[1])
+            let json ;
+                json = Json.stringify(array[1])
 
              const updateLiquidation = "update dictionary_value set last_liquidation = ?"
              await connection.update(updateLiquidation,[json])
