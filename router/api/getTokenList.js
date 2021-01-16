@@ -29,7 +29,7 @@ exports.Liquidation =  router.get("/Liquidation", async (req, res) => {
   // Define the SQL statement
     try {
         const selectUserInfo = "select  u.user_address ,t.*   FROM user_info as u LEFT JOIN token_info as t  on u.ctoken_address = t.ctokenAddress WHERE (u.mint_scale/2) < u.borrow_scale"
-        let array = await connection.select(selectUserInfo);
+        var array = await connection.select(selectUserInfo);
         var arrayLiquidation ;
 
         arrayLiquidation = await getAccount(array)
@@ -39,7 +39,7 @@ exports.Liquidation =  router.get("/Liquidation", async (req, res) => {
 
     let data ={
     "code":0,
-    "data":arrayLiquidation
+    "data":array[1]
   }
   res.send(data)
 });
