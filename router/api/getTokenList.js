@@ -30,15 +30,21 @@ exports.Liquidation =  router.get("/Liquidation", async (req, res) => {
     try {
         const selectLiquidationJson = "select key_value from dictionary_value where key_id = 'last_liquidation'"
        var array = await connection.select(selectLiquidationJson)
-        var result = JSON.parse(array[0].key_value);
+        var arrayObject = JSON.parse(array[0].key_value);
+        let {name} = req.query;
+        let result = new Array();
+        for(let i = 0;i < arrayObject.length;i++ ){
+            if (arrayObject[i].user_address == name){
+                result.push(arrayObject[i])
+            }
+        }
+        let data ={
+            "code":0,
+            "data":result}
+            res.send(data)
     }catch(e){
-
+        res.json({code: 404, data: "For failure"});
     }
-    let data ={
-    "code":0,
-    "data":result
-  }
-  res.send(data)
 });
 
 exports.MarketSize =  router.get("/marketSize", async (req, res) => {
