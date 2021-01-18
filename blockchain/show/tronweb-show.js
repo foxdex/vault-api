@@ -161,8 +161,8 @@ const getCloseFactorMantissa=   async (token)=> {
   const riskControllAddressSQL = "select key_value from contract_dictionary where key_id = 'risk_controll_address'"
     let temp =await connection.select(riskControllAddressSQL);
     let arry = await tronWeb.contract().at(temp[0].key_value);
-    let arr1 = await arry.markets(token.ctokenAddress).call() 
-    let arr2 = new BigNumber(arr1.collateralFactorMantissa._hex, 16).div(new BigNumber(10).pow(18)).toFixed()
+    let arr1 = await arry.markets(token.ctokenAddress).call()
+    let arr2 = new BigNumber(arr1.collateralFactorMantissa._hex, 16).div(new BigNumber(10).pow(18)).times(100).toFixed()
     return arr2;
 
 }
@@ -229,7 +229,7 @@ const getAccount =  async  (array)=> {
             let Comptroller = await tronWeb.contract().at(comptrToken);
             let balances = await Comptroller.getAccountLiquidity(array[i].user_address).call()
             let balance1 = new BigNumber(balances[2]._hex, 16).toFixed();
-            if (balance1 < 0){
+            if (balance1 > 0){
                 arrayResult.push(array[i])
             }
         } catch (error) {
