@@ -2,7 +2,7 @@
 const connection = require("../../config/connection");
 const $http = require('../../api/http/config')
 const BigNumber = require('bignumber.js')
-const {getCashPrior , totalBorrows ,decimals ,getBpoolToken ,getSupplyRatePerBlock ,getBorrowRatePerBlock,getCloseFactorMantissa,getAccount} = require('../show/tronweb-show')
+const {getCashPrior , totalBorrows ,decimals ,getBpoolToken ,getSupplyRatePerBlock ,getBorrowRatePerBlock,getCloseFactorMantissa,getAccount,getBalanceOfUnderlying} = require('../show/tronweb-show')
 // Synchronize all transaction info information of this block
 const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
   console.log('getTransactionInfoByBlockTimestamp' + JSON.stringify(config));
@@ -127,6 +127,9 @@ const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
 
                  if (token[i].price_check == false) {
                      token[i].current_price = await getBpoolToken(token[i]);
+                     if(token[i].current_price == null){
+                         continue;
+                     }
                      let result = await connection.update(updatePrice, [token[i].current_price, token[i].token_id])
                  }
 
@@ -190,10 +193,10 @@ const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
 
              arrayLiquidation = await getAccount(array)
 
-            let json ;
-                json = Json.stringify(array[1])
+                let json ;
+                    json = JSON.stringify(arrayLiquidation)
 
-             const updateLiquidation = "update dictionary_value set last_liquidation = ?"
+             const updateLiquidation = "update dictionary_value set key_value = ? where key_id = 'last_liquidation' "
              await connection.update(updateLiquidation,[json])
          } catch (e) {
           console.log("updateUserInfoJson ======" + e )
@@ -202,6 +205,14 @@ const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
 
 
      const updateUserInfo = async function updateUserInfo() {
+//        try {
+//            await getBalanceOfUnderlying();
+//
+//        }catch (e) {
+// console.log("updateUserInfo ==========" + e)
+//            console.log("s")
+//        }
+//      }
 try {
 
     const selectDate = "SELECT key_value FROM dictionary_value WHERE key_id = \"last_update_time\""
@@ -209,8 +220,8 @@ try {
     let temp = await connection.select(selectDate);
     let lastUpdateTime = Number(temp[0]);
 
-    const selectEventSQL = "SELECT SUM((c.parameter * t.current_price)) as total,c.method,c.owber_address,MAX(c.date_created) as time ,ctoken_address FROM event_trigger  as c LEFT JOIN token_info AS t on c.ctoken_address = t.ctokenAddress " +
-        "WHERE c.method = \"mint(uint256 mintAmount)\" or c.method = \"borrow(uint256 borrowAmount)\" GROUP BY c.owber_address,c.method,c.ctoken_address order BY c.owber_address"
+    const selectEventSQL = "SELECT SUM(parameter) as total,method,owber_address,MAX(date_created) as time ,ctoken_address FROM event_trigger" +
+        " WHERE method = \"mint(uint256 mintAmount)\" or method = \"borrow(uint256 borrowAmount)\" GROUP BY owber_address,method,ctoken_address order BY owber_address"
 
     const mintScaleSQL ="insert into user_info(user_address,mint_scale,borrow_scale,ctoken_address)  values(?,?,0,?) on  DUPLICATE key update mint_scale = mint_scale + ?"
 
@@ -219,7 +230,7 @@ try {
 
     const updateDictionary = "update dictionary_value set key_value = ? where key_id = 'last_update_time'"
 
-    let array = await connection.select(selectEventSQL, [lastUpdateTime])
+    let array = await connection.select(selectEventSQL)
 
 
     let updateTime = 0;

@@ -197,6 +197,26 @@ const getCompRate = async () => {
   }
 }
 
+const getBalanceOfUnderlying = async () => {
+    try {
+
+        let selectCtoken = "select * from contract_info"
+        let ctokenList = await connection.select(selectCtoken)
+
+    let that = ctokenList
+
+    var functionSelector = 'balanceOfUnderlying(address)';
+    var parameter = [{ type: 'address', value: tronWeb.defaultAddress.base58 }]
+    tronWeb.transactionBuilder.triggerConstantContract(this.token.ctokenAddress, functionSelector, {}, parameter).then((transaction) => {
+        that.balanceOfUnderlying = new BigNumber(transaction.constant_result[0], 16).div(new BigNumber(10).pow(that.token.decimals)).toFixed()
+
+
+    })
+}catch (e) {
+        console.log("getBalanceOfUnderlying + ==============="  + e)
+    }
+}
+
 const getAccount =  async  (array)=> {
   const riskControllAddressSQL = "select key_value from contract_dictionary where key_id = 'risk_controll_address'"
   let temp =await connection.select(riskControllAddressSQL);
@@ -231,5 +251,6 @@ module.exports = {
     getCloseFactorMantissa,
     getBpoolToken,
     getCompRate,
-    getAccount
+    getAccount,
+    getBalanceOfUnderlying
 };
