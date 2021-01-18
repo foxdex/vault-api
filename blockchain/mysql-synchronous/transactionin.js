@@ -223,9 +223,9 @@ try {
     const selectEventSQL = "SELECT SUM(parameter) as total,method,owber_address,MAX(date_created) as time ,ctoken_address FROM event_trigger" +
         " WHERE method = \"mint(uint256 mintAmount)\" or method = \"borrow(uint256 borrowAmount)\" GROUP BY owber_address,method,ctoken_address order BY owber_address"
 
-    const mintScaleSQL ="insert into user_info(user_address,mint_scale,borrow_scale,ctoken_address)  values(?,?,0,?) on  DUPLICATE key update mint_scale = mint_scale + ?"
+    const mintScaleSQL ="insert into user_info(user_address,mint_scale,borrow_scale,ctoken_address)  values(?,?,0,?) on  DUPLICATE key update mint_scale =  ?"
 
-    const borrowScaleSQL = "insert into user_info(user_address,mint_scale,borrow_scale,ctoken_address)  values(?,0,?,?) on  DUPLICATE key update borrow_scale = borrow_scale + ?\n"
+    const borrowScaleSQL = "insert into user_info(user_address,mint_scale,borrow_scale,ctoken_address)  values(?,0,?,?) on  DUPLICATE key update borrow_scale = ?\n"
 
 
     const updateDictionary = "update dictionary_value set key_value = ? where key_id = 'last_update_time'"
