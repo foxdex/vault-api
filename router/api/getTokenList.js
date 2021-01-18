@@ -30,12 +30,13 @@ exports.Liquidation =  router.get("/Liquidation", async (req, res) => {
     try {
         const selectLiquidationJson = "select key_value from dictionary_value where key_id = 'last_liquidation'"
        var array = await connection.select(selectLiquidationJson)
+        var result = JSON.parse(array[0].key_value);
     }catch(e){
 
     }
     let data ={
     "code":0,
-    "data":array[0].key_value
+    "data":result
   }
   res.send(data)
 });
