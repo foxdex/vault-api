@@ -115,32 +115,28 @@ const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
      }
 
 
-     const updateTokenPrice = async function updateApyAndTokenPrice(token) {
+     const updateTokenPrice = async function updatePrice(token) {
          getCoingeckoMarkets();
 
          try {
 
              let total = 0;
-             const updatePrice = "update token_info set current_price = ? where token_id = ?"
+             const updatePrice = "update token_info set current_price_contract = ? where token_id = ?"
 
              for (let i = 0; i < token.length; i++) {
 
-                 if (token[i].price_check == false) {
-                     token[i].current_price = await getBpoolToken(token[i]);
-                     if(token[i].current_price == null){
-                         continue;
-                     }
-                     let result = await connection.update(updatePrice, [token[i].current_price, token[i].token_id])
+                 token[i].current_price_contract = await getBpoolToken(token[i]);
+                 if (token[i].current_price_contract == null) {
+                     continue
                  }
-
-                 total += (token[i].mint_scale + token[i].borrow_scale) * token[i].current_price
+                 let result = await connection.update(updatePrice, [token[i].current_price_contract, token[i].token_id])
              }
 
+             total += (token[i].mint_scale + token[i].borrow_scale) * token[i].current_price
          } catch (e) {
              console.log('updateApyAndTokenPrice======' + e)
          }
      }
-
 
      const getCoingeckoMarkets = async () => {
          let marketList = await $http.get('https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=300&page=1&sparkline=false');

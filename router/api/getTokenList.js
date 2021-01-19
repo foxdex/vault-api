@@ -14,7 +14,7 @@ const {getAccount} = require('../../blockchain/show/tronweb-show')
 
 
 //获取tokenList
-     const sqlStr = "SELECT name,address,img,balance,decimals,ctokenAddress,current_price,mint_scale,borrow_scale,cdecimals,abi,mint_rate,borrow_rate,pledge_rate from token_info ORDER BY sort_value DESC,token_id ASC";
+     const sqlStr = "SELECT name,address,img,balance,decimals,ctokenAddress,current_price,mint_scale,borrow_scale,cdecimals,abi,mint_rate,borrow_rate,pledge_rate,current_price_contract from token_info ORDER BY sort_value DESC,token_id ASC";
      try {
      let data =  await connection.selectAll(sqlStr);
      res.send({
