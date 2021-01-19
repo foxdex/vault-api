@@ -197,25 +197,46 @@ const getCompRate = async () => {
   }
 }
 
-const getBalanceOfUnderlying = async () => {
+const getBalanceOfUnderlying = async (array) => {
     try {
+       let temp = 0;
+       const updateUserInfo = "insert into user_info(user_address,mint_scale,borrow_scale,ctoken_address)  values(?,?,0,?) on  DUPLICATE key update mint_scale =  ?"
 
-        let selectCtoken = "select * from contract_info"
-        let ctokenList = await connection.select(selectCtoken)
+            var functionSelector = 'balanceOfUnderlying(address)';
+            var parameter = [{type: 'address', value: array.owner_address}]
+            await tronWeb.transactionBuilder.triggerConstantContract(array.ctoken_address, functionSelector, {}, parameter).then((transaction) => {
+               temp = new BigNumber(transaction.constant_result[0], 16).div(new BigNumber(10).pow(array.decimals)).toFixed()
+            })
 
-    let that = ctokenList
-
-    var functionSelector = 'balanceOfUnderlying(address)';
-    var parameter = [{ type: 'address', value: tronWeb.defaultAddress.base58 }]
-    tronWeb.transactionBuilder.triggerConstantContract(this.token.ctokenAddress, functionSelector, {}, parameter).then((transaction) => {
-        that.balanceOfUnderlying = new BigNumber(transaction.constant_result[0], 16).div(new BigNumber(10).pow(that.token.decimals)).toFixed()
-
-
-    })
+        await connection.select(updateUserInfo,[array.owner_address,temp,array.ctoken_address,temp])
+         let a = 0;
 }catch (e) {
         console.log("getBalanceOfUnderlying + ==============="  + e)
     }
 }
+
+const getBorrowBalanceCurrent = async (array) => {
+    try {
+          let temp = 0;
+        const updateUserInfo = "insert into user_info(user_address,mint_scale,borrow_scale,ctoken_address)  values(?,0,?,?) on  DUPLICATE key update borrow_scale = ?"
+
+        var functionSelector = 'borrowBalanceCurrent(address)';
+            var parameter = [{type: 'address', value: array.owner_address}]
+            await tronWeb.transactionBuilder.triggerConstantContract(array.ctoken_address, functionSelector, {}, parameter).then((transaction) => {
+                let borrowBalanceCurrent = parseInt(transaction.constant_result[0], 16) / Math.pow(10, array.decimals)
+                borrowBalanceCurrent = new BigNumber(borrowBalanceCurrent)
+                temp = borrowBalanceCurrent.toFixed()
+            })
+        await connection.select(updateUserInfo,[array.owner_address,temp,array.ctoken_address,temp])
+        let a = 0;
+
+        }catch (e) {
+        console.log("borrowBalanceCurrent + =======" + e)
+    }
+}
+
+
+
 
 const getAccount =  async  (array)=> {
   const riskControllAddressSQL = "select key_value from contract_dictionary where key_id = 'risk_controll_address'"
@@ -252,5 +273,6 @@ module.exports = {
     getBpoolToken,
     getCompRate,
     getAccount,
+    getBorrowBalanceCurrent,
     getBalanceOfUnderlying
 };

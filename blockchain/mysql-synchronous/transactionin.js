@@ -2,7 +2,7 @@
 const connection = require("../../config/connection");
 const $http = require('../../api/http/config')
 const BigNumber = require('bignumber.js')
-const {getCashPrior , totalBorrows ,decimals ,getBpoolToken ,getSupplyRatePerBlock ,getBorrowRatePerBlock,getCloseFactorMantissa,getAccount,getBalanceOfUnderlying} = require('../show/tronweb-show')
+const {getCashPrior , totalBorrows ,decimals ,getBpoolToken ,getSupplyRatePerBlock ,getBorrowRatePerBlock,getCloseFactorMantissa,getAccount,getBalanceOfUnderlying,getBorrowBalanceCurrent} = require('../show/tronweb-show')
 // Synchronize all transaction info information of this block
 const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
   console.log('getTransactionInfoByBlockTimestamp' + JSON.stringify(config));
@@ -201,52 +201,62 @@ const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
 
 
      const updateUserInfo = async function updateUserInfo() {
-//        try {
-//            await getBalanceOfUnderlying();
-//
-//        }catch (e) {
-// console.log("updateUserInfo ==========" + e)
-//            console.log("s")
-//        }
-//      }
-try {
+       try {
+           let array
+       const sql = "select e.owber_address as owner_address,t.decimals as decimals,e.ctoken_address           FROM event_trigger as e LEFT JOIN token_info as t on e.ctoken_address = t.ctokenAddress\n" +
+           "WHERE t.decimals != 'null'  GROUP BY e.owber_address,t.decimals,e.ctoken_address\n"
 
-    const selectDate = "SELECT key_value FROM dictionary_value WHERE key_id = \"last_update_time\""
+    array =  await connection.select(sql)
 
-    let temp = await connection.select(selectDate);
-    let lastUpdateTime = Number(temp[0]);
-
-    const selectEventSQL = "SELECT SUM(parameter) as total,method,owber_address,MAX(date_created) as time ,ctoken_address FROM event_trigger" +
-        " WHERE method = \"mint(uint256 mintAmount)\" or method = \"borrow(uint256 borrowAmount)\" GROUP BY owber_address,method,ctoken_address order BY owber_address"
-
-    const mintScaleSQL ="insert into user_info(user_address,mint_scale,borrow_scale,ctoken_address)  values(?,?,0,?) on  DUPLICATE key update mint_scale =  ?"
-
-    const borrowScaleSQL = "insert into user_info(user_address,mint_scale,borrow_scale,ctoken_address)  values(?,0,?,?) on  DUPLICATE key update borrow_scale = ?\n"
+           for(let i = 0;i < array.length;i++) {
+               await getBalanceOfUnderlying(array[i]);
+               await getBorrowBalanceCurrent(array[i]);
+           }
 
 
-    const updateDictionary = "update dictionary_value set key_value = ? where key_id = 'last_update_time'"
-
-    let array = await connection.select(selectEventSQL)
-
-
-    let updateTime = 0;
-
-    for (let i = 0; i < array.length; i++) {
-        if (array[i].time > updateTime) {
-            updateTime = array[i].time
-        }
-        if (array[i].method == "mint(uint256 mintAmount)") {
-            await connection.update(mintScaleSQL, [array[i].owber_address, array[i].total, array[i].ctoken_address,array[i].total])
-
-        } else if (array[i].method == "borrow(uint256 borrowAmount)") {
-            await connection.update(borrowScaleSQL, [array[i].owber_address, array[i].total, array[i].ctoken_address,array[i].total])
-        }
-    }
-    await connection.insert(updateDictionary, [updateTime])
-}catch (e) {
-    console.log("updateUserInfo() =======" + e)
-}
+       }catch (e) {
+console.log("updateUserInfo ==========" + e)
+           console.log("s")
+       }
      }
+// try {
+//
+//     const selectDate = "SELECT key_value FROM dictionary_value WHERE key_id = \"last_update_time\""
+//
+//     let temp = await connection.select(selectDate);
+//     let lastUpdateTime = Number(temp[0]);
+//
+//     const selectEventSQL = "SELECT SUM(parameter) as total,method,owber_address,MAX(date_created) as time ,ctoken_address FROM event_trigger" +
+//         " WHERE method = \"mint(uint256 mintAmount)\" or method = \"borrow(uint256 borrowAmount)\" GROUP BY owber_address,method,ctoken_address order BY owber_address"
+//
+//     const mintScaleSQL ="insert into user_info(user_address,mint_scale,borrow_scale,ctoken_address)  values(?,?,0,?) on  DUPLICATE key update mint_scale =  ?"
+//
+//     const borrowScaleSQL = "insert into user_info(user_address,mint_scale,borrow_scale,ctoken_address)  values(?,0,?,?) on  DUPLICATE key update borrow_scale = ?\n"
+//
+//
+//     const updateDictionary = "update dictionary_value set key_value = ? where key_id = 'last_update_time'"
+//
+//     let array = await connection.select(selectEventSQL)
+//
+//
+//     let updateTime = 0;
+//
+//     for (let i = 0; i < array.length; i++) {
+//         if (array[i].time > updateTime) {
+//             updateTime = array[i].time
+//         }
+//         if (array[i].method == "mint(uint256 mintAmount)") {
+//             await connection.update(mintScaleSQL, [array[i].owber_address, array[i].total, array[i].ctoken_address,array[i].total])
+//
+//         } else if (array[i].method == "borrow(uint256 borrowAmount)") {
+//             await connection.update(borrowScaleSQL, [array[i].owber_address, array[i].total, array[i].ctoken_address,array[i].total])
+//         }
+//     }
+//     await connection.insert(updateDictionary, [updateTime])
+// }catch (e) {
+//     console.log("updateUserInfo() =======" + e)
+// }
+//      }
 
 
 
