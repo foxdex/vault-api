@@ -2,7 +2,7 @@
 const connection = require("../../config/connection");
 const $http = require('../../api/http/config')
 const BigNumber = require('bignumber.js')
-const {getCashPrior , totalBorrows ,decimals ,getBpoolToken ,getSupplyRatePerBlock ,getBorrowRatePerBlock,getCloseFactorMantissa,getAccount,getBalanceOfUnderlying,getBorrowBalanceCurrent} = require('../show/tronweb-show')
+const {getCashPrior , totalBorrows ,decimals ,getBpoolToken ,getSupplyRatePerBlock ,getBorrowRatePerBlock,getCloseFactorMantissa,getAccount,getBalanceOfUnderlying,getBorrowBalanceCurrent,getCompRate} = require('../show/tronweb-show')
 // Synchronize all transaction info information of this block
 const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
   console.log('getTransactionInfoByBlockTimestamp' + JSON.stringify(config));
@@ -122,17 +122,19 @@ const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
 
              let total = 0;
              const updatePrice = "update token_info set current_price_contract = ? where token_id = ?"
-
+             const updatePriceByApi = "update token_info set current_price_contract = ? ,curret_price = ?where token_id = ?"
              for (let i = 0; i < token.length; i++) {
 
                  token[i].current_price_contract = await getBpoolToken(token[i]);
                  if (token[i].current_price_contract == null) {
                      continue
+                 }else if (token[i].abi == 1){
+                     let result = await connection.update(updatePriceByApi, [token[i].current_price_contract,token[i].current_price_contract, token[i].token_id])
+                     continue
                  }
                  let result = await connection.update(updatePrice, [token[i].current_price_contract, token[i].token_id])
              }
 
-             total += (token[i].mint_scale + token[i].borrow_scale) * token[i].current_price
          } catch (e) {
              console.log('updateApyAndTokenPrice======' + e)
          }
@@ -209,8 +211,13 @@ const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
     array =  await connection.select(sql)
 
            for(let i = 0;i < array.length;i++) {
+               var date=new Date();
+
                await getBalanceOfUnderlying(array[i]);
+               var date1=new Date();
+
                await getBorrowBalanceCurrent(array[i]);
+               var date2=new Date();
            }
 
 
@@ -258,7 +265,21 @@ console.log("updateUserInfo ==========" + e)
 // }
 //      }
 
+const updateRate = async function updateRate(){
+    try {
+        let tronweb = await getCompRate();//待存缓存
+        if (tronweb == null) return;
+        let temp = tronweb * 60 * 24 * 365 * 1;
+        let rate;
+        rate = JSON.stringify(temp);
 
+        const sql = "update dictionary_value set key_value = ? where key_id = 'last_apy'"
+        await connection.update(sql, [rate])
+        let a;
+    }catch (e) {
+        console.log("updateRat ==========" + e)
+    }
+}
 
 
 
@@ -273,5 +294,6 @@ module.exports = {
     updateTokenRate,
     updateUserInfo,
     updateArrayLiquidation,
+    updateRate,
     getCoingeckoMarkets
 }

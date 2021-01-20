@@ -5,7 +5,7 @@ exports.taskStart = function taskStart(){
     console.log(`Tasks start loading`);
     taskSynchronizationContractEventRecord()
     setTimeout(function () {
-           setInterval(taskSynchronizationContractEventRecord,100000);;
+           setInterval(taskSynchronizationContractEventRecord,50000);;
 
     }, 1000);
 }
@@ -27,9 +27,10 @@ async function taskSynchronizationContractEventRecord() {;
                   apiData.environment = el.key_value
               }
         });
-      await transactionin.updateUserInfo();
-      await transactionin.updateArrayLiquidation();
+      await transactionin.updateUserInfo();//合约中取用户当前token下存借
+      await transactionin.updateArrayLiquidation();//更新清算Json
       await transactionin.updateTokenPrice(token);//从网上扒并更新token的currentPrice
+        await transactionin.updateRate();
       for (let i = 0 ;i< token.length;i++) {
       await transactionin.getTransactionInfoByBlockTimestamp(apiData,token[i]);
       await transactionin.updateTokenInfo(token[i]);//从合约中取token的存借规模
