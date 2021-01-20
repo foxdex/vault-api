@@ -27,8 +27,8 @@ async function taskSynchronizationContractEventRecord() {;
                   apiData.environment = el.key_value
               }
         });
-      // await transactionin.updateUserInfo();//合约中取用户当前token下存借
-      // await transactionin.updateArrayLiquidation();//更新清算Json
+      await transactionin.updateUserInfo();//合约中取用户当前token下存借
+      await transactionin.updateArrayLiquidation();//更新清算Json
       await transactionin.updateTokenPrice(token);//从网上扒并更新token的currentPrice
         await transactionin.updateRate();
       for (let i = 0 ;i< token.length;i++) {
