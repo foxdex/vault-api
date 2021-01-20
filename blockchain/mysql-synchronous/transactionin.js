@@ -122,7 +122,7 @@ const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
 
              let total = 0;
              const updatePrice = "update token_info set current_price_contract = ? where token_id = ?"
-             const updatePriceByApi = "update token_info set current_price_contract = ? ,curret_price = ?where token_id = ?"
+             const updatePriceByApi = "update token_info set current_price_contract = ? ,current_price = ?where token_id = ?"
              for (let i = 0; i < token.length; i++) {
 
                  token[i].current_price_contract = await getBpoolToken(token[i]);
@@ -130,6 +130,7 @@ const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
                      continue
                  }else if (token[i].abi == 1){
                      let result = await connection.update(updatePriceByApi, [token[i].current_price_contract,token[i].current_price_contract, token[i].token_id])
+                     let a = 0;
                      continue
                  }
                  let result = await connection.update(updatePrice, [token[i].current_price_contract, token[i].token_id])
