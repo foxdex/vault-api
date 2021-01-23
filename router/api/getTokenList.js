@@ -5,7 +5,7 @@ const transactionin = require("../../blockchain/mysql-synchronous/transactionin"
 // Load configuration file
 const connection =   require('../../config/connection')
 const url = require('url');
-// const {getCompRate} = require('../../blockchain/show/tronweb-show')
+const {getBalanceOfUnderlying,getBorrowBalanceCurrent} = require('../../blockchain/show/tronweb-show')
 // const {getAccount} = require('../../blockchain/show/tronweb-show')
 // getTokenList
  exports.getTokenList =  router.get("/getTokenList", async (req, res) => {
@@ -14,7 +14,7 @@ const url = require('url');
 
 
 //获取tokenList
-     const sqlStr = "SELECT name,address,img,balance,decimals,ctokenAddress,current_price,mint_scale,borrow_scale,cdecimals,abi,mint_rate,borrow_rate,pledge_rate,current_price_contract from token_info ORDER BY sort_value DESC,token_id ASC";
+     const sqlStr = "SELECT name,address,img,balance,decimals,ctokenAddress,current_price,mint_scale,token_alias,borrow_scale,cdecimals,abi,mint_rate,borrow_rate,pledge_rate,current_price_contract from token_info ORDER BY sort_value DESC,token_id ASC";
      try {
      let data =  await connection.selectAll(sqlStr);
      res.send({
@@ -134,3 +134,62 @@ async function HealthIndex(req,res,ownerAddress) {
                 console.log("HealthIndex ========" + e)
     }
 }
+
+//
+// exports.MarketSize =  router.get("/mint", async (req, res) =>{
+//     try {
+//
+// const insertSql = "insert into user_info(user_address,mint_scale,borrow_scale,ctoken_address)  values(?,?,0,?) on  DUPLICATE key update mint_scale =  mint_scale + ?"
+// const updateSql = "update token_info set mint_scale = mint_scale + ? where ctoken_address = ?"
+//
+//     }catch (e) {
+//
+//     }
+// })
+//
+//
+// exports.MarketSize =  router.get("/borrow", async (req, res) =>{
+//     try {
+//         const insertSql = "insert into user_info(user_address,mint_scale,borrow_scale,ctoken_address)  values(?,0,?,?) on  DUPLICATE key update borrow_scale = borrow_scale + ?"
+//         const updateSql = "update token_info set borrow_scale = borrow_scale + ? where ctoken_address = ?"
+//
+//     }catch (e) {
+//
+//     }
+// })
+//
+//
+// exports.MarketSize =  router.get("/repayBorrow", async (req, res) =>{
+//     try {
+//
+//         const insertSql = "insert into user_info(user_address,mint_scale,borrow_scale,ctoken_address)  values(?,?,0,?) on  DUPLICATE key update mint_scale =  mint_scale + ?"
+//         const updateSql = "update token_info set mint_scale = mint_scale + ? where ctoken_address = ?"
+//
+//     }catch (e) {
+//
+//     }
+// })
+//
+//
+// exports.MarketSize =  router.get("/redeem", async (req, res) =>{
+//     try {
+//
+//         const insertSql = "insert into user_info(user_address,mint_scale,borrow_scale,ctoken_address)  values(?,?,0,?) on  DUPLICATE key update mint_scale =  mint_scale + ?"
+//         const updateSql = "update token_info set mint_scale = mint_scale + ? where ctoken_address = ?"
+//
+//     }catch (e) {
+//
+//     }
+// })
+
+
+
+exports.MarketSize =  router.get("/update", async (req, res) =>{
+    try {
+        await getBorrowBalanceCurrent();
+        await getBalanceOfUnderlying();
+        await transactionin.updateTokenInfo();
+    }catch (e) {
+
+    }
+})
