@@ -22,5 +22,4 @@ restApi.restApiConfig(app);
 
 // Arouse the task
 const timingTask = require("./blockchain/timing-task");
-const e = require("express");
 timingTask.taskStart();

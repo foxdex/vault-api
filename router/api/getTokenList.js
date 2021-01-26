@@ -14,7 +14,7 @@ const {getBalanceOfUnderlying,getBorrowBalanceCurrent} = require('../../blockcha
 
 
 //获取tokenList
-     const sqlStr = "SELECT * from token_info ORDER BY sort_value DESC,token_id ASC";
+     const sqlStr = "SELECT * from token_info ORDER BY sort_value ,token_id ASC";
      try {
      let data =  await connection.selectAll(sqlStr);
      res.send({
