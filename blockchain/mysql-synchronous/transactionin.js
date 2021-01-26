@@ -132,6 +132,8 @@ const getTransactionInfoByBlockTimestamp = async (config,ctoken) =>{
                      let result = await connection.update(updatePriceByApi, [token[i].current_price_contract,token[i].current_price_contract, token[i].token_id])
                      let a = 0;
                      continue
+                 }else if (token[i].decimals != 6){
+                     token[i].current_price_contract = token[i].current_price_contract * Math.pow(10,token[i].decimals - 6)
                  }
                  let result = await connection.update(updatePrice, [token[i].current_price_contract, token[i].token_id])
              }
