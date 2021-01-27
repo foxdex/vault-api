@@ -60,16 +60,18 @@ try {
     let healthIndex = 0;
     let temp;
     let {name} = req.query;
+    let box_price;
 
     healthIndex = await HealthIndex(req, res, name);
     if (healthIndex == null){
         healthIndex = 0;
     }
 
-   const sqlRate = "select key_value from dictionary_value where key_id = 'last_apy'"
+   const sqlRate = "select key_value from dictionary_value where key_id = 'last_apy' or key_id ='box_price'"
    temp = await connection.select(sqlRate);
-    rate = Number(temp[0]);
-    
+    rate = temp[0].key_value * 1;
+    box_price = temp[1].key_value * 1;
+
     for (let i = 0; i < token.length; i++) {
         totalMint += token[i].mint_scale * token[i].current_price;
         totalBorrow += token[i].borrow_scale * token[i].current_price;
@@ -78,7 +80,7 @@ try {
     if (total == 0){
         Apy = 0;
     } else {
-        Apy = (rate / total).toFixed(2) * 1
+        Apy = (rate * box_price / total).toFixed(2) * 1
     }
 
 
