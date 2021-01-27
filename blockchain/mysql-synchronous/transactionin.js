@@ -284,7 +284,22 @@ const updateRate = async function updateRate(){
     }
 }
 
-
+const updateBoxPrice = async function updateBoxPrice(){
+    try {
+        const updateSql = "update dictionary_value set key_value = ? where key_id = 'box_price'"
+        let data;
+        let temp = await $http.get('https://api.abelo.finance/api/trade/getTradingVolume')
+        for(let i = 0;i < temp.data.length;i++){
+            if (temp.data[i].trade_token_name == "box"){
+                data = temp.data[i];
+            }
+        }
+        await connection.update(updateSql,data.trade_price);
+        console.log("updateBoxPrice + ======" + data.trade_price)
+    }catch (e) {
+        console.log("updateRat ==========" + e)
+    }
+}
 
 
 
@@ -298,5 +313,6 @@ module.exports = {
     updateUserInfo,
     updateArrayLiquidation,
     updateRate,
+    updateBoxPrice,
     getCoingeckoMarkets
 }

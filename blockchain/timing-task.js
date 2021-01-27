@@ -36,6 +36,7 @@ async function taskSynchronizationContractEventRecord() {;
       await transactionin.updateTokenInfo(token[i]);//从合约中取token的存借规模
           await transactionin.updateTokenRate(token[i]);
       }
+      await transactionin.updateBoxPrice();
     } catch (error) {
         console.log('taskSynchronizationContractEventRecord===='+error);
     }
