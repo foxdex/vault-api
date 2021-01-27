@@ -272,7 +272,7 @@ const updateRate = async function updateRate(){
     try {
         let tronweb = await getCompRate();//待存缓存
         if (tronweb == null) return;
-        let temp = tronweb * 60 * 24 * 365 * 1;
+        let temp = tronweb *20 * 60 * 24 * 365 * 1;
         let rate;
         rate = JSON.stringify(temp);
 

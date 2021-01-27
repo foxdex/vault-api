@@ -80,7 +80,7 @@ try {
     if (total == 0){
         Apy = 0;
     } else {
-        Apy = (rate * box_price / total).toFixed(2) * 1000
+        Apy = (rate * box_price/ total *100).toFixed(2)
     }
 
 
