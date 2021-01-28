@@ -7,6 +7,8 @@ services:
 #      - NODE_ENV='development'
     container_name: lend
     restart: always
+    volumes:
+      - /home/ubuntu/lendApiConfig:/usr/src/app/lendApiConfig
     ports:
       - "8081:9701"
     privileged: true

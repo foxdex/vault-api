@@ -295,7 +295,7 @@ const updateBoxPrice = async function updateBoxPrice(){
             }
         }
         await connection.update(updateSql,data.trade_price);
-       
+
     }catch (e) {
         console.log("updateRat ==========" + e)
     }
