@@ -8,7 +8,7 @@ services:
     container_name: lend
     restart: always
     volumes:
-      - "./lendApiConfig:/config"
+      - "/config"
     ports:
       - "8081:9701"
     privileged: true
