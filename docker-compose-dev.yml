@@ -7,8 +7,7 @@ services:
 #      - NODE_ENV='development'
     container_name: lend
     restart: always
-    volumes:
-      - /data:/var/data
+   
     ports:
       - "8081:9701"
     privileged: true
@@ -20,7 +19,8 @@ services:
     ports:
       - "8080:80"
     privileged: true
-
+ volumes:
+      - /data:/var/data
 
 networks:
   lend_default:
