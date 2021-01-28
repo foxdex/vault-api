@@ -12,7 +12,7 @@ services:
     ports:
       - "8081:9701"
     privileged: true
-
+    tty: true
   web:
     image: coinflow/lend-web:dev
     container_name: web
