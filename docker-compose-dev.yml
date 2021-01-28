@@ -3,12 +3,12 @@ version: '3'
 services:
   lend:
     image: coinflow/lend-api:dev
+    volumes:
+      - "/localhost/data:/var/lib/postgresql/data"
 #    environment:
 #      - NODE_ENV='development'
     container_name: lend
     restart: always
-     volumes:
-      - /var
 
     ports:
       - "8081:9701"
