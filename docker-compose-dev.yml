@@ -4,7 +4,7 @@ services:
   lend:
     image: coinflow/lend-api:dev
     volumes:
-      - "/localhost/data:/var/lib/postgresql/data"
+    - /lib
 #    environment:
 #      - NODE_ENV='development'
     container_name: lend
