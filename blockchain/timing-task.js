@@ -10,6 +10,10 @@ exports.taskStart = function taskStart(){
     }, 1000);
 }
 
+
+
+
+
 async function taskSynchronizationContractEventRecord() {;
   console.log('taskSynchronizationContractEventRecord');
     const transactionin = require("./mysql-synchronous/transactionin");
