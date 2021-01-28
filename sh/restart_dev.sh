@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker login --username foxdex -p $DOCKER_ACCESS_TOKEN
+docker login --username lend -p $DOCKER_ACCESS_TOKEN
 
 docker rmi -f coinflow/lend-api:dev
 docker rmi -f coinflow/lend-web:dev
