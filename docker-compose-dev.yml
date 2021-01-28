@@ -8,7 +8,7 @@ services:
     container_name: lend
     restart: always
     volumes:
-      - 'ccc:/config'
+      - /data:/var/data
     ports:
       - "8081:9701"
     privileged: true
