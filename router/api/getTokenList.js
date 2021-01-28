@@ -31,13 +31,6 @@ exports.Liquidation =  router.get("/Liquidation", async (req, res) => {
         const selectLiquidationJson = "select key_value from dictionary_value where key_id = 'last_liquidation'"
        var array = await connection.select(selectLiquidationJson)
         var arrayObject = JSON.parse(array[0].key_value);
-        // let {name} = req.query;
-        // let result = new Array();
-        // for(let i = 0;i < arrayObject.length;i++ ){
-        //     if (arrayObject[i].user_address == name){
-        //         result.push(arrayObject[i])
-        //     }
-        // }
         let data ={
             "code":0,
             "data":arrayObject}
