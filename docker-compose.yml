@@ -6,8 +6,6 @@ services:
       - NODE_ENV=production
     image: coinflow/lend-api:latest
     container_name: lend
-    volumes:
-      - /home/ubuntu/lendApiConfig:/usr/src/app
     restart: always
     ports:
       - "8080:9701"
