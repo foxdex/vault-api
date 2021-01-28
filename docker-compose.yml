@@ -7,6 +7,8 @@ services:
     image: coinflow/lend-api:latest
     container_name: lend
     restart: always
+    volumes:
+      - /home/ubuntu/lendApiConfig:/usr/src/app
     ports:
       - "8080:9701"
     privileged: true
