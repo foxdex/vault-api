@@ -4,7 +4,7 @@ services:
   lend:
     image: coinflow/lend-api:dev
     volumes:
-    - /lib
+    -  /home/ubuntu/config:/usr/src/app/test
 #    environment:
 #      - NODE_ENV='development'
     container_name: lend
