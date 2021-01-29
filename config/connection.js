@@ -3,10 +3,10 @@
 var config
 
 if (process.env.NODE_ENV == 'production') {
-    config = require("../config/test/pro-mysql");
+    config = require("../cloudFile/pro-mysql.json");
     console.log("use production");
 } else {
-    config = require("../config/test/test-mysql");
+    config = require("./test/test-mysql");
     console.log("use dev");
 }
 const mysql = require("mysql");
