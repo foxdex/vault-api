@@ -3,12 +3,12 @@ version: '3'
 services:
   lend:
     image: coinflow/lend-api:dev
+    volumes:
+    - /lib
 #    environment:
 #      - NODE_ENV='development'
     container_name: lend
     restart: always
-    volumes:
-      - /config
     ports:
       - "8081:9701"
     privileged: true
