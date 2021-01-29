@@ -4,7 +4,7 @@ services:
   lend:
     image: coinflow/lend-api:dev
     volumes:
-    -  /home/ubuntu/config:/usr/src/app/cloudFile
+    -  /home/ubuntu/lendApiConfig:/usr/src/app/config
     environment:
       - NODE_ENV=production
     container_name: lend
