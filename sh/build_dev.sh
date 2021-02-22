@@ -8,4 +8,4 @@ docker build -t  coinflow/heco-converter-api:dev .
 docker login --username $DOCKER_ACCESS_NAME -p $DOCKER_ACCESS_TOKEN
 
 
-docker push coinflow/converter-api:dev
+docker push coinflow/heco-converter-api:dev
