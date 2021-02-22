@@ -2,8 +2,8 @@
 
 docker login --username lend -p $DOCKER_ACCESS_TOKEN
 
-docker rmi -f coinflow/lend-api:latest
-docker rmi -f coinflow/lend-web:latest
+docker rmi -f coinflow/heco-lend-api:latest
+docker rmi -f coinflow/heco-lend-web:latest
 docker-compose  -f  docker-compose.yml  pull lend web
 
 docker-compose -f docker-compose.yml down
