@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  api:
+    image: coinflow/heco-converter-api:dev
+    environment:
+      - NODE_ENV='development'
+    container_name: api
+    restart: always
+    # volumes:
+      # - /home/ubuntu/lendApiConfig:/usr/src/app/lendApiConfig
+    ports:
+      - "8084:9701"
+    privileged: true
+
+  web:
+    image: coinflow/heco-converter-web:dev
+    container_name: web
+    restart: always
+    ports:
+      - "8085:80"
+    privileged: true
+
+
+networks:
+  lend_default:
+    driver: bridge

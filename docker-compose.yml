@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  api:
+    environment:
+      - NODE_ENV=production
+    image: coinflow/heco-converter-api:latest
+    container_name: api
+    restart: always
+    ports:
+      - "8083:9701"
+    privileged: true
+
+  web:
+    image: coinflow/heco-converter-web:latest
+    container_name: web
+    restart: always
+    ports:
+      - "8082:80"
+    privileged: true
+  
+  # node:
+  #   image: coinflow/heco-lend-api:latest
+  #   container_name: lend-node
+  #   restart: always
+  #   ports:
+  #     - "9701:9701"
+  #   privileged: true  
+
+networks:
+  lend_default:
+    driver: bridge
