@@ -5,6 +5,8 @@ const BigNumber = require('bignumber.js')
 var api = require('../api/glable');
 
 class glable {
+
+
    constructor (address,config) {
      this.address = address
      if (config == 'address') {

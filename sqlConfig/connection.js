@@ -2,16 +2,6 @@
 
 var config = require("./test/test-mysql");
 const mysql = require("mysql");
-<<<<<<< HEAD
-=======
-var config = {
-  "host": "18.162.61.131",
-  "port": "3306",
-  "user": "hf",
-  "password": "Hf_12345678",
-  "database": "lend"
-}
->>>>>>> 445b69023c7cb420bc09863806b81ce3374bcf07
 var pool = mysql.createPool(config);
 // SELECT ALL
 exports.selectAll = function selectAll(sqlAll) {

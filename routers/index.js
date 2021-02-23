@@ -3,23 +3,15 @@ const connection = require("../sqlConfig/connection");
 const router = express.Router();
 const {initWeb3,Comptrollers} = require('../web3/index');
 const {updateMarket} = require('../task/market');
-const {updateUserInfo} = require('../task/user')
 
-router.get('/web3',async (req,res)=>{
-  try {
-    let dist = await web3().getDecimals()
-    res.send(dist)
-  } catch (error) {
-      console.log(error);
-      res.send(error)
-  }
-      
-})
+
+
+
 router.get("/getTokenList", async (req, res) => {
   // Define the SQL statement
 
 //获取tokenList
-   const sqlStr = "SELECT * from token_info ORDER BY sort_value ,token_id ASC";
+   const sqlStr = "SELECT * from index_info ";
    try {
    let data =  await connection.selectAll(sqlStr);
    res.send({
